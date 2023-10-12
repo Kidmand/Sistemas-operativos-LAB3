@@ -716,7 +716,7 @@ void pstat(int pid)
   if (p != 0)
   {
     // Imprime la cantidad de veces que fue elegido por el scheduler
-    printf("%d", p->cantselect);
+    printf("pid: %d, cantselect: %d, lastexect: ??", p->pid, p->cantselect);
     printf("\n");
   }
   else
