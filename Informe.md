@@ -17,4 +17,7 @@
 6. ¿Cúales son los estados en los que un proceso pueden permanecer en xv6-riscv y que los hace cambiar de estado?
 
 #### Respuestas
-1. 
+1. La politica de planificación que utliza xv6-riscv Round Robin. <br/>
+   Nos dimos cuenta, por la funcion `void scheduler(void)` implementada en `kernel/proc.c` y la presencia del timer (quantum).
+2. Un quantum en xv6-riscv dura 1/10 de segundo. <br/>
+   Nos dimos cuenta por la funcion `void timerinit()` implementada en `kernel/start.c`.
