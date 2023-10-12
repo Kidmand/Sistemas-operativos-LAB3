@@ -6,7 +6,8 @@
  -
  -
 
-## Primera Parte: Estudiando el planificador de xv6-riscv y respondiendo preguntas
+## Primera Parte: 
+Estudiando el planificador de xv6-riscv y respondiendo preguntas.
 
 #### Preguntas
 1. ¿Qué política de planificación utiliza xv6-riscv para elegir el próximo proceso a ejecutarse? Pista: xv6-riscv nunca sale de la función scheduler por medios “normales”.
@@ -50,3 +51,9 @@
    - RUNNING: ???
    - ZOMBIE:  ???
 
+## Segunda Parte: 
+Contabilizar las veces que es elegido un proceso por el planificador y anlaizar cómo el planificador afecta a los procesos.
+
+#### 1) Quantum normal:
+
+#### 2) Quantum 10 veces más corto:
