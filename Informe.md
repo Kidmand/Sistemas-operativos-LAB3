@@ -2,6 +2,9 @@
 
 ## Integrantes:
  - Ramiro Lugo Viola
+ - Matias Viola Di Benedetto
+ -
+ -
 
 ## Primera Parte: Estudiando el planificador de xv6-riscv y respondiendo preguntas
 
