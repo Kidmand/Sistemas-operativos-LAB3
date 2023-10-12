@@ -172,6 +172,7 @@ freeproc(struct proc *p)
   p->chan = 0;
   p->killed = 0;
   p->xstate = 0;
+  p->cantselect = 0;
   p->state = UNUSED;
 }
 
@@ -253,7 +254,7 @@ void userinit(void)
   p->cwd = namei("/");
 
   p->state = RUNNABLE;
-  p->nexecute = 0; // Inicializamos el contador de ejecuciones.
+  p->cantselect = 0; // Inicializamos el contador de ejecuciones.
 
   release(&p->lock);
 }
@@ -476,7 +477,7 @@ void scheduler(void)
         // to release its lock and then reacquire it
         // before jumping back to us.
         p->state = RUNNING;
-        p->nexecute++; // Se incrementa el numero de veces que se selecciono ese proceso.
+        p->cantselect++; // Se incrementa el numero de veces que se selecciono ese proceso.
         c->proc = p;
         swtch(&c->context, &p->context);
 
@@ -688,7 +689,7 @@ void procdump(void)
   struct proc *p;
   char *state;
 
-  printf("\n PID | NUMEXECUTE | STATE  | NAME  \n");
+  printf("\n PID | CANTSELECT | STATE  | NAME  \n");
   for (p = proc; p < &proc[NPROC]; p++)
   {
     if (p->state == UNUSED)
@@ -698,7 +699,28 @@ void procdump(void)
     else
       state = "???";
 
-    printf("  %d  |     %d     | %s | %s", p->pid, p->nexecute, state, p->name);
+    printf("  %d  |     %d     | %s | %s", p->pid, p->cantselect, state, p->name);
     printf("\n");
+  }
+}
+
+void pstat(int pid)
+{
+  // proc[pid]
+  struct proc *p = 0;
+  for (int i = 0; i < NPROC; i++)
+  {
+    if (pid == proc[i].pid)
+      p = &proc[i];
+  }
+  if (p != 0)
+  {
+    // Imprime la cantidad de veces que fue elegido por el scheduler
+    printf("%d", p->cantselect);
+    printf("\n");
+  }
+  else
+  {
+    printf("No se encontro el proccess id.\n");
   }
 }
