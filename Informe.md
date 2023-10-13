@@ -45,12 +45,17 @@ Estudiando el planificador de xv6-riscv y respondiendo preguntas.
    enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
    ```
    Por lo tanto tenemos 6 estados posibles y estos cambian en: 
-   - UNUSED: ???
-   - USED:   ???
-   - SLEEPING: ???
-   - RUNNABLE: El sheduler cambia de RUNNABLE a RUNNING.
-   - RUNNING: ???
-   - ZOMBIE:  ???
+   - UNUSED: En `procinit` setea todos en UNUSED.
+   - USED: En `allocproc` se cambia de UNUSED a USED.
+   - SLEEPING: En `sleep` setea el proceso en SLEEPING.
+   - RUNNABLE: 
+     - En `userinit` se setea el proceso en RUNNABLE.
+     - En `fork` se setea el nuevo proceso en RUNNABLE.
+     - En `yield` se setea el proceso en RUNNABLE.
+     - En `wakeup` se setea el proceso de SLEEPING a RUNNABLE.
+     - En `kill` se setea el proceso si esta SLEEPING a RUNNABLE.
+   - RUNNING: El unico lugar donde se setea es en el `sheduler` que cambia de RUNNABLE a RUNNING.
+   - ZOMBIE: En `exit` se setea el proceso en ZOMBIE.
 
 ## Segunda Parte: 
 Contabilizar las veces que es elegido un proceso por el planificador y anlaizar cómo el planificador afecta a los procesos.
