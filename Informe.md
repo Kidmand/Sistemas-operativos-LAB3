@@ -10,12 +10,12 @@
 Estudiando el planificador de xv6-riscv y respondiendo preguntas.
 
 #### Preguntas
-1. ¿Qué política de planificación utiliza xv6-riscv para elegir el próximo proceso a ejecutarse? Pista: xv6-riscv nunca sale de la función scheduler por medios “normales”.
-2. ¿Cuánto dura un quantum en xv6-riscv?
-3. ¿Cuánto dura un cambio de contexto en xv6-riscv?
-4. ¿El cambio de contexto consume tiempo de un quantum?
-5. ¿Hay alguna forma de que a un proceso se le asigne menos tiempo? Pista: Se puede empezar a buscar desde la system call uptime.
-6. ¿Cúales son los estados en los que un proceso pueden permanecer en xv6-riscv y que los hace cambiar de estado?
+1. ✅ ¿Qué política de planificación utiliza xv6-riscv para elegir el próximo proceso a ejecutarse? Pista: xv6-riscv nunca sale de la función scheduler por medios “normales”.
+2. ✅ ¿Cuánto dura un quantum en xv6-riscv?
+3. ✅ ¿Cuánto dura un cambio de contexto en xv6-riscv?
+4. ❌ ¿El cambio de contexto consume tiempo de un quantum?
+5. ❌ ¿Hay alguna forma de que a un proceso se le asigne menos tiempo? Pista: Se puede empezar a buscar desde la system call uptime.
+6. ❌ ¿Cúales son los estados en los que un proceso pueden permanecer en xv6-riscv y que los hace cambiar de estado?
 
 #### Respuestas
 1. La politica de planificación que utliza xv6-riscv Round Robin. <br/>
@@ -36,9 +36,10 @@ Estudiando el planificador de xv6-riscv y respondiendo preguntas.
     }
     ```
     Podemos contar la cantida de intrucciones que se van ejecutar despues de volver del `swtch`, esto conlleva la asignacion `c->proc = 0;` y todas las iteraciones del bucle hasta encontrar un proceso en estado `RUNNABLE`.
-4. Es absurdo pensar esto. <br/>
+4. Es absurdo pensar esto. <br/> ???? (¿Si esta contenido al principio de la ejecución?)
    Supongamos un proceso cpu-bound (consume el quantum siempre), por lo tanto tenemos un cambio de contexto una vez que el proceso haya consumido todo el quantum, si el cambio de contexto estuviera contenido en el quantum cómo lo haces.
 5. ??????????????????
+   Suponindo que se habla del tiempo de quantum, si se puede porque cuando se hace una llamada a una syscall se produce una intrrupción `yield()` y cambia de contexto.
 6. Encontramos en `kernel/proc.h` lo siguiente: <br/>
    ```c
    enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
