@@ -10,7 +10,7 @@
 Estudiando el planificador de xv6-riscv y respondiendo preguntas.
 
 #### Preguntas
-1. ✅ ¿Qué política de planificación utiliza xv6-riscv para elegir el próximo proceso a ejecutarse? Pista: xv6-riscv nunca sale de la función scheduler por medios “normales”.
+1. ✅ ¿Qué política de planificación utiliza xv6-riscv para elegir el próximo proceso a ejecutarse?
 2. ✅ ¿Cuánto dura un quantum en xv6-riscv?
 3. ✅ ¿Cuánto dura un cambio de contexto en xv6-riscv?
 4. ❌ ¿El cambio de contexto consume tiempo de un quantum?
@@ -60,6 +60,66 @@ Estudiando el planificador de xv6-riscv y respondiendo preguntas.
 ## Segunda Parte: 
 Contabilizar las veces que es elegido un proceso por el planificador y anlaizar cómo el planificador afecta a los procesos.
 
+¿Como lo hicimos?
+Agreamos dos campos al `struc proc` esto son:
+   - `cantselect`: Cuenta cada vez que entra el proceso en el sheduler y se inizializa en 0 en `userinit` y se libera en  `freeproc`. (¿ procinit ?) 
+   - `lastexect` : Setea despues de la ejecucion la cantidad de ticks.
+
 #### 1) Quantum normal:
+- Caso 1: (un solo iobench)
+  ```sh
+  $ iobench
+                                        5: 5696 OPW100T
+                                        5: 5696 OPR100T
+                                        5: 5632 OPW100T
+                                        5: 5632 OPR100T
+                                        5: 5702 OPW100T
+                                        5: 5702 OPR100T
+                                        5: 5696 OPW100T
+                                        5: 5696 OPR100T
+                                        5: 5696 OPW100T
+                                        5: 5696 OPR100T
+                                        5: 5696 OPW100T
+                                        5: 5696 OPR100T
+                                        5: 5702 OPW100T
+                                        5: 5702 OPR100T
+                                        5: 5696 OPW100T
+                                        5: 5696 OPR100T
+                                        5: 5696 OPW100T
+                                        5: 5696 OPR100T
+                                        5: 5760 OPW100T
+                                        5: 5760 OPR100T
+                                        5: 5696 OPW100T
+                                        5: 5696 OPR100T
+                                        5: 5696 OPW100T
+                                        5: 5696 OPR100T
+                                        5: 5696 OPW100T
+                                        5: 5696 OPR100T
+                                        5: 5760 OPW100T
+                                        5: 5760 OPR100T
+                                        5: 5760 OPW100T
+                                        5: 5760 OPR100T
+                                        5: 5632 OPW100T
+                                        5: 5632 OPR100T
+                                        5: 5568 OPW100T
+                                        5: 5568 OPR100T
+                                        5: 5696 OPW100T
+                                        5: 5696 OPR100T
+                                        5: 5696 OPW100T
+                                        5: 5696 OPR100T
+   pid: 5, cantselect: 357207, lastexect: 2242
+  ```
+- Caso 2 (un solo cpubench):
+  ```sh
+  $ cpubench
+  ```
+- Caso 3 (un iobench y un cpubench):
+  ```sh
+  $ iobench & ; cpubench & 
+  ```
+- Caso 4 (dos cpubench):
+  ```sh
+  $ cpubench & ; cpubench & 
+  ```
 
 #### 2) Quantum 10 veces más corto:

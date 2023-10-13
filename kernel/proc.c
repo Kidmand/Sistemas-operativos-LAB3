@@ -480,7 +480,7 @@ void scheduler(void)
         p->cantselect++; // Se incrementa el numero de veces que se selecciono ese proceso.
         c->proc = p;
         swtch(&c->context, &p->context);
-
+        p->lastexect = ticks; // Se guarda la utlima ejecucion en ticks.
         // Process is done running for now.
         // It should have changed its p->state before coming back.
         c->proc = 0;
@@ -716,7 +716,7 @@ void pstat(int pid)
   if (p != 0)
   {
     // Imprime la cantidad de veces que fue elegido por el scheduler
-    printf("pid: %d, cantselect: %d, lastexect: ??", p->pid, p->cantselect);
+    printf("pid: %d, cantselect: %d, lastexect: %d \n", p->pid, p->cantselect, p->lastexect);
     printf("\n");
   }
   else

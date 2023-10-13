@@ -118,4 +118,5 @@ struct proc
   char name[16];               // Process name (debugging)
 
   int cantselect; // Cantidad de veces que fue elegido ese proceso por el planificador.
+  int lastexect;  // Se guarda la ultima ejecucion en ticks.
 };
