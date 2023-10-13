@@ -708,15 +708,19 @@ void pstat(int pid)
 {
   // proc[pid]
   struct proc *p = 0;
+  int priority = 0;
   for (int i = 0; i < NPROC; i++)
   {
     if (pid == proc[i].pid)
+    {
       p = &proc[i];
+      priority = i;
+    }
   }
   if (p != 0)
   {
     // Imprime la cantidad de veces que fue elegido por el scheduler
-    printf("pid: %d, cantselect: %d, lastexect: %d \n", p->pid, p->cantselect, p->lastexect);
+    printf("pid: %d, priority: %d, cantselect: %d, lastexect: %d \n", p->pid, priority, p->cantselect, p->lastexect);
     printf("\n");
   }
   else
