@@ -3,7 +3,7 @@
 ## Integrantes:
  - Ramiro Lugo Viola
  - Matias Viola Di Benedetto
- -
+ - Daián García Giménez 
 
 ---
 Despues borrar esto:
