@@ -22,7 +22,7 @@ Estudiando el planificador de xv6-riscv y respondiendo preguntas.
 3. ✅ ❓ ¿Cuánto dura un cambio de contexto en xv6-riscv?
 4. ❌ ❓ ¿El cambio de contexto consume tiempo de un quantum?
 5. ❌ ❓ ¿Hay alguna forma de que a un proceso se le asigne menos tiempo? Pista: Se puede empezar a buscar desde la system call uptime.
-6. ✅❌ ❓ ¿Cúales son los estados en los que un proceso pueden permanecer en xv6-riscv y que los hace cambiar de estado?
+6. ✅ ❓ ¿Cúales son los estados en los que un proceso pueden permanecer en xv6-riscv y que los hace cambiar de estado?
 
 #### Respuestas
 1. La politica de planificación que utliza xv6-riscv Round Robin. <br/>
@@ -71,215 +71,34 @@ Contabilizar las veces que es elegido un proceso por el planificador y anlaizar 
 Agreamos dos campos al `struc proc` esto son:
    - `cantselect`: Cuenta cada vez que entra el proceso en el sheduler y se inizializa en 0 en `userinit` y se libera en  `freeproc`. (¿ procinit ?) 
    - `lastexect` : Setea despues de la ejecucion la cantidad de ticks.
+❓Puede ser el indice de la tabla de procesos, su prioridad?
 
 #### 1) Quantum normal: (`make CPUS=1 qemu`)
 - ✅ Caso 1: (un solo iobench)
   ```sh
   $ iobench
-                                        3: 6272 OPW100T
-                                        3: 6272 OPR100T
-                                        3: 6083 OPW100T
-                                        3: 6083 OPR100T
-                                        3: 6209 OPW100T
-                                        3: 6209 OPR100T
-                                        3: 6208 OPW100T
-                                        3: 6208 OPR100T
-                                        3: 6272 OPW100T
-                                        3: 6272 OPR100T
-                                        3: 6272 OPW100T
-                                        3: 6272 OPR100T
-                                        3: 6272 OPW100T
-                                        3: 6272 OPR100T
-                                        3: 6208 OPW100T
-                                        3: 6208 OPR100T
-                                        3: 6080 OPW100T
-                                        3: 6080 OPR100T
-                                        3: 6144 OPW100T
-                                        3: 6144 OPR100T
-                                        3: 6208 OPW100T
-                                        3: 6208 OPR100T
-                                        3: 6208 OPW100T
-                                        3: 6208 OPR100T
-                                        3: 6016 OPW100T
-                                        3: 6016 OPR100T
-                                        3: 6208 OPW100T
-                                        3: 6208 OPR100T
-                                        3: 6208 OPW100T
-                                        3: 6208 OPR100T
-                                        3: 6272 OPW100T
-                                        3: 6272 OPR100T
-                                        3: 6208 OPW100T
-                                        3: 6208 OPR100T
-                                        3: 6144 OPW100T
-                                        3: 6144 OPR100T
-                                        3: 6144 OPW100T
-                                        3: 6144 OPR100T
-  pid: 3, cantselect: 387776, lastexect: 2111
   ```
-  El proceso iobench esta ejecutando practicamente solo en el SO, por lo tanto puede hacer muchas operaciones de R/W. Ademas tiene sentido que cantselect sea grande porque nunca supera el quantum y  se produce una interrupcion cada vez que hay un R/W.
+  El proceso iobench esta ejecutando practicamente solo en el SO, por lo tanto puede hacer muchas operaciones de R/W. Ademas tiene sentido que cantselect sea grande porque nunca supera el quantum y  se produce una interrupcion cada vez que hay un R/W. Ademas se ve una clara diferencia en la cantidad de operaciones respecto al caso dos.
 - ✅ Caso 2 (un solo cpubench):
   ```sh
   $ cpubench
-  3: 890 MFLOP100T
-  3: 867 MFLOP100T
-  3: 883 MFLOP100T
-  3: 890 MFLOP100T
-  3: 898 MFLOP100T
-  3: 898 MFLOP100T
-  3: 906 MFLOP100T
-  3: 915 MFLOP100T
-  3: 906 MFLOP100T
-  3: 906 MFLOP100T
-  3: 906 MFLOP100T
-  3: 915 MFLOP100T
-  3: 906 MFLOP100T
-  3: 906 MFLOP100T
-  3: 915 MFLOP100T
-  3: 906 MFLOP100T
-  3: 915 MFLOP100T
-  pid: 3, cantselect: 2112, lastexect: 2118
   ```
-  El proceso cpubench esta ejecutando practicamente solo en el SO, y al ser cpu-bound siempre consume el quantum. Por esta razon es que cantselect es similar a lastexect.
+  El proceso cpubench esta ejecutando practicamente solo en el SO, y al ser cpu-bound siempre consume el quantum. Por esta razon es que cantselect es similar a lastexect. Ademas se ve una clara diferencia en la cantidad de operaciones respecto al caso uno.
 - ✅❌ ❓ Caso 3 (un iobench y un cpubench):
   ```sh
   $ iobench & ; cpubench & 
-    6: 875 MFLOP100T
-    6: 890 MFLOP100T
-    6: 883 MFLOP100T
-                                            5: 64 OPW100T
-                                            5: 64 OPR100T
-    6: 890 MFLOP100T
-    6: 898 MFLOP100T
-                                            5: 33 OPW100T
-                                            5: 33 OPR100T
-    6: 875 MFLOP100T
-                                            5: 33 OPW100T
-                                            5: 33 OPR100T
-    6: 875 MFLOP100T
-    6: 883 MFLOP100T
-                                            5: 33 OPW100T
-                                            5: 33 OPR100T
-    6: 883 MFLOP100T
-    6: 890 MFLOP100T
-                                            5: 33 OPW100T
-                                            5: 33 OPR100T
-    6: 860 MFLOP100T
-                                            5: 33 OPW100T
-                                            5: 33 OPR100T
-    6: 875 MFLOP100T
-    6: 890 MFLOP100T
-                                            5: 33 OPW100T
-                                            5: 33 OPR100T
-    6: 883 MFLOP100T
-    6: 883 MFLOP100T
-                                            5: 33 OPW100T
-                                            5: 33 OPR100T
-    6: 883 MFLOP100T
-                                            5: 33 OPW100T
-                                            5: 33 OPR100T
-    6: 875 MFLOP100T
-    pid: 6, cantselect: 2112, lastexect: 2120
-    
-                                            5: 33 OPW100T
-                                            5: 33 OPR100T
-    pid: 5, cantselect: 2216, lastexect: 2120
   ```
   Encontramos en cpubench que se esta guradando en memoria las operaciones de la matriz y esto consume I/O, dejandole menos I/O al iobench, por esta razon se reducen las R/W.
 - ✅ Caso 4 (dos cpubench):
   ```sh
   $ cpubench & ; cpubench & 
-   5: 580 MFLOP100T
-   6: 586 MFLOP100T
-   5: 1098 MFLOP100T
-   6: 1088 MFLOP100T
-   5: 1108 MFLOP100T
-   6: 1118 MFLOP100T
-   5: 1108 MFLOP100T
-   6: 1108 MFLOP100T
-   5: 1108 MFLOP100T
-   6: 1098 MFLOP100T
-   5: 1098 MFLOP100T
-   6: 1098 MFLOP100T
-   5: 1108 MFLOP100T
-   6: 1108 MFLOP100T
-   5: 1108 MFLOP100T
-   6: 1108 MFLOP100T
-   5: 1118 MFLOP100T
-   6: 1118 MFLOP100T
-   5: 1088 MFLOP100T
-   6: 1098 MFLOP100T
-   5: 1108 MFLOP100T
-   6: 1108 MFLOP100T
-   6: 1108 MFLOP100T
-   5: 1098 MFLOP100T
-   5: 1128 MFLOP100T
-   6: 1108 MFLOP100T
-   5: 1098 MFLOP100T
-   6: 1098 MFLOP100T
-   5: 1098 MFLOP100T
-   6: 1108 MFLOP100T
-   5: 1118 MFLOP100T
-   6: 1108 MFLOP100T
-   5: 1108 MFLOP100T
-   6: 1108 MFLOP100T
-   5: 1059 MFLOP100T
-   6: 1059 MFLOP100T
-   pid: 5, cantselect: 1057, lastexect: 2112
-   
-   pid: 6, cantselect: 1054, lastexect: 2114
   ```
   Al tener dos procesos cpubench tiene sentido que se consume constantemente el quantum, por esta razon se da que lastexect sea el doble que cantselect, justamenete tenemos dos procesos cpu-bound.
 - ❌ ❓ Caso 5 (dos cpubench y un iobench):  
   ```sh
   $ cpubench & ; cpubench & ; iobench &
-    5: 444 MFLOP100T
-    7: 437 MFLOP100T
-    5: 440 MFLOP100T
-    7: 428 MFLOP100T
-    5: 434 MFLOP100T
-    7: 434 MFLOP100T
-    5: 1032 MFLOP100T
-    7: 1023 MFLOP100T
-    5: 1059 MFLOP100T
-    7: 1041 MFLOP100T
-    5: 1078 MFLOP100T
-    7: 1032 MFLOP100T
-                                            8: 29 OPW100T
-                                            8: 29 OPR100T
-    5: 1088 MFLOP100T
-    7: 1041 MFLOP100T
-    5: 1078 MFLOP100T
-    7: 1041 MFLOP100T
-    5: 1068 MFLOP100T
-    7: 1032 MFLOP100T
-    5: 1088 MFLOP100T
-                                            8: 16 OPW100T
-                                            8: 16 OPR100T
-    7: 1041 MFLOP100T
-    5: 1078 MFLOP100T
-    7: 1041 MFLOP100T
-    5: 1050 MFLOP100T
-    7: 1015 MFLOP100T
-    5: 1041 MFLOP100T
-                                            8: 16 OPW100T
-                                            8: 16 OPR100T
-    7: 1023 MFLOP100T
-    5: 1041 MFLOP100T
-    7: 996 MFLOP100T
-    5: 1032 MFLOP100T
-    7: 1015 MFLOP100T
-    5: 1078 MFLOP100T
-    7: 1023 MFLOP100T
-                                            8: 16 OPW100T
-                                            8: 16 OPR100T
-    pid: 5, cantselect: 1057, lastexect: 2117
-    
-    pid: 7, cantselect: 1053, lastexect: 2118
-    
-                                            8: 16 OPW100T
-                                            8: 16 OPR100T
-    pid: 8, cantselect: 1236, lastexect: 2119
   ```
+  Completar ...
 
 #### 2) Quantum 10 veces más corto: 
 ❓ COMO CALCULAR EL `lastexect`.
@@ -287,125 +106,16 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
 - Caso 1: (un solo iobench)
   ```sh
   $ iobench
-                                          3: 6656 OPW100T
-                                        3: 6656 OPR100T
-                                        3: 6528 OPW100T
-                                        3: 6528 OPR100T
-                                        3: 6528 OPW100T
-                                        3: 6528 OPR100T
-                                        3: 6592 OPW100T
-                                        3: 6592 OPR100T
-                                        3: 6592 OPW100T
-                                        3: 6592 OPR100T
-                                        3: 6592 OPW100T
-                                        3: 6592 OPR100T
-                                        3: 6592 OPW100T
-                                        3: 6592 OPR100T
-                                        3: 6592 OPW100T
-                                        3: 6592 OPR100T
-                                        3: 6656 OPW100T
-                                        3: 6656 OPR100T
-                                        3: 6592 OPW100T
-                                        3: 6592 OPR100T
-                                        3: 6592 OPW100T
-                                        3: 6592 OPR100T
-                                        3: 6592 OPW100T
-                                        3: 6592 OPR100T
-                                        3: 6528 OPW100T
-                                        3: 6528 OPR100T
-                                        3: 6528 OPW100T
-                                        3: 6528 OPR100T
-                                        3: 6592 OPW100T
-                                        3: 6592 OPR100T
-                                        3: 6592 OPW100T
-                                        3: 6592 OPR100T
-                                        3: 6336 OPW100T
-                                        3: 6336 OPR100T
-                                        3: 5824 OPW100T
-                                        3: 5824 OPR100T
-                                        3: 6080 OPW100T
-                                        3: 6080 OPR100T
-    pid: 3, cantselect: 417099, lastexect: 21137
   ```
 Aumento el lastexect respecto a la prueba anteriro del caso uno por un factor de 10, pero es analgo porque lastexect cuenta la cantida de ticks y estos depende del quantum.
 - Caso 2 (un solo cpubench):
   ```sh
   $ cpubench
-  3: 875 MFLOP100T
-  3: 860 MFLOP100T
-  3: 860 MFLOP100T
-  3: 838 MFLOP100T
-  3: 831 MFLOP100T
-  3: 845 MFLOP100T
-  3: 867 MFLOP100T
-  3: 867 MFLOP100T
-  3: 838 MFLOP100T
-  3: 860 MFLOP100T
-  3: 845 MFLOP100T
-  3: 860 MFLOP100T
-  3: 860 MFLOP100T
-  3: 845 MFLOP100T
-  3: 838 MFLOP100T
-  3: 838 MFLOP100T
-  pid: 3, cantselect: 21103, lastexect: 21225
   ```
 Aumento en un factor de 10 el cantselect respecto a la prueba anteriro del caso dos y tiene senido porque se consume el quantum 10 veces mas rapido.
 - Caso 3 (un iobench y un cpubench):
   ```sh
   $ iobench & ; cpubench & 
-    6: 818 MFLOP100T
-                                            5: 386 OPW100T
-                                            5: 386 OPR100T
-    6: 838 MFLOP100T
-                                            5: 336 OPW100T
-                                            5: 336 OPR100T
-    6: 831 MFLOP100T
-                                            5: 333 OPW100T
-                                            5: 333 OPR100T
-                                            5: 333 OPW100T
-                                            5: 333 OPR100T
-    6: 831 MFLOP100T
-                                            5: 336 OPW100T
-                                            5: 336 OPR100T
-    6: 825 MFLOP100T
-                                            5: 333 OPW100T
-                                            5: 333 OPR100T
-    6: 838 MFLOP100T
-                                            5: 336 OPW100T
-                                            5: 336 OPR100T
-    6: 831 MFLOP100T
-                                            5: 333 OPW100T
-                                            5: 333 OPR100T
-    6: 838 MFLOP100T
-                                            5: 333 OPW100T
-                                            5: 333 OPR100T
-    6: 831 MFLOP100T
-                                            5: 336 OPW100T
-                                            5: 336 OPR100T
-    6: 831 MFLOP100T
-                                            5: 333 OPW100T
-                                            5: 333 OPR100T
-    6: 831 MFLOP100T
-                                            5: 333 OPW100T
-                                            5: 333 OPR100T
-    6: 838 MFLOP100T
-                                            5: 336 OPW100T
-                                            5: 336 OPR100T
-    6: 838 MFLOP100T
-                                            5: 333 OPW100T
-                                            5: 333 OPR100T
-    6: 798 MFLOP100T
-                                            5: 333 OPW100T
-                                            5: 333 OPR100T
-    6: 789 MFLOP100T
-                                            5: 336 OPW100T
-                                            5: 336 OPR100T
-    6: 818 MFLOP100T
-                                            5: 333 OPW100T
-                                            5: 333 OPR100T
-    pid: 5, cantselect: 21035, lastexect: 21193
-    
-    pid: 6, cantselect: 21154, lastexect: 21311
   ```
 Completar ...
 - Caso 4 (dos cpubench):
