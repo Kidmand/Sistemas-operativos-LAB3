@@ -281,20 +281,131 @@ Agreamos dos campos al `struc proc` esto son:
     pid: 8, cantselect: 1236, lastexect: 2119
   ```
 
-#### 2) Quantum 10 veces más corto:
+#### 2) Quantum 10 veces más corto: 
+❓ COMO CALCULAR EL `lastexect`.
+Aclaración, para hacer este test se modificio la varaible `interval` en `kernel/start.c:69`
 - Caso 1: (un solo iobench)
   ```sh
   $ iobench
+                                          3: 6656 OPW100T
+                                        3: 6656 OPR100T
+                                        3: 6528 OPW100T
+                                        3: 6528 OPR100T
+                                        3: 6528 OPW100T
+                                        3: 6528 OPR100T
+                                        3: 6592 OPW100T
+                                        3: 6592 OPR100T
+                                        3: 6592 OPW100T
+                                        3: 6592 OPR100T
+                                        3: 6592 OPW100T
+                                        3: 6592 OPR100T
+                                        3: 6592 OPW100T
+                                        3: 6592 OPR100T
+                                        3: 6592 OPW100T
+                                        3: 6592 OPR100T
+                                        3: 6656 OPW100T
+                                        3: 6656 OPR100T
+                                        3: 6592 OPW100T
+                                        3: 6592 OPR100T
+                                        3: 6592 OPW100T
+                                        3: 6592 OPR100T
+                                        3: 6592 OPW100T
+                                        3: 6592 OPR100T
+                                        3: 6528 OPW100T
+                                        3: 6528 OPR100T
+                                        3: 6528 OPW100T
+                                        3: 6528 OPR100T
+                                        3: 6592 OPW100T
+                                        3: 6592 OPR100T
+                                        3: 6592 OPW100T
+                                        3: 6592 OPR100T
+                                        3: 6336 OPW100T
+                                        3: 6336 OPR100T
+                                        3: 5824 OPW100T
+                                        3: 5824 OPR100T
+                                        3: 6080 OPW100T
+                                        3: 6080 OPR100T
+    pid: 3, cantselect: 417099, lastexect: 21137
   ```
-Completar ...
+Aumento el lastexect respecto a la prueba anteriro del caso uno por un factor de 10, pero es analgo porque lastexect cuenta la cantida de ticks y estos depende del quantum.
 - Caso 2 (un solo cpubench):
   ```sh
   $ cpubench
+  3: 875 MFLOP100T
+  3: 860 MFLOP100T
+  3: 860 MFLOP100T
+  3: 838 MFLOP100T
+  3: 831 MFLOP100T
+  3: 845 MFLOP100T
+  3: 867 MFLOP100T
+  3: 867 MFLOP100T
+  3: 838 MFLOP100T
+  3: 860 MFLOP100T
+  3: 845 MFLOP100T
+  3: 860 MFLOP100T
+  3: 860 MFLOP100T
+  3: 845 MFLOP100T
+  3: 838 MFLOP100T
+  3: 838 MFLOP100T
+  pid: 3, cantselect: 21103, lastexect: 21225
   ```
-Completar ...
+Aumento en un factor de 10 el cantselect respecto a la prueba anteriro del caso dos y tiene senido porque se consume el quantum 10 veces mas rapido.
 - Caso 3 (un iobench y un cpubench):
   ```sh
   $ iobench & ; cpubench & 
+    6: 818 MFLOP100T
+                                            5: 386 OPW100T
+                                            5: 386 OPR100T
+    6: 838 MFLOP100T
+                                            5: 336 OPW100T
+                                            5: 336 OPR100T
+    6: 831 MFLOP100T
+                                            5: 333 OPW100T
+                                            5: 333 OPR100T
+                                            5: 333 OPW100T
+                                            5: 333 OPR100T
+    6: 831 MFLOP100T
+                                            5: 336 OPW100T
+                                            5: 336 OPR100T
+    6: 825 MFLOP100T
+                                            5: 333 OPW100T
+                                            5: 333 OPR100T
+    6: 838 MFLOP100T
+                                            5: 336 OPW100T
+                                            5: 336 OPR100T
+    6: 831 MFLOP100T
+                                            5: 333 OPW100T
+                                            5: 333 OPR100T
+    6: 838 MFLOP100T
+                                            5: 333 OPW100T
+                                            5: 333 OPR100T
+    6: 831 MFLOP100T
+                                            5: 336 OPW100T
+                                            5: 336 OPR100T
+    6: 831 MFLOP100T
+                                            5: 333 OPW100T
+                                            5: 333 OPR100T
+    6: 831 MFLOP100T
+                                            5: 333 OPW100T
+                                            5: 333 OPR100T
+    6: 838 MFLOP100T
+                                            5: 336 OPW100T
+                                            5: 336 OPR100T
+    6: 838 MFLOP100T
+                                            5: 333 OPW100T
+                                            5: 333 OPR100T
+    6: 798 MFLOP100T
+                                            5: 333 OPW100T
+                                            5: 333 OPR100T
+    6: 789 MFLOP100T
+                                            5: 336 OPW100T
+                                            5: 336 OPR100T
+    6: 818 MFLOP100T
+                                            5: 333 OPW100T
+                                            5: 333 OPR100T
+    pid: 5, cantselect: 21035, lastexect: 21193
+    
+    pid: 6, cantselect: 21154, lastexect: 21311
   ```
 Completar ...
 - Caso 4 (dos cpubench):
