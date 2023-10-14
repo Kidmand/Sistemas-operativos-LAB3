@@ -450,6 +450,13 @@ int wait(uint64 addr)
   }
 }
 
+static uint64 time(void)
+{
+  uint64 n;
+  __asm__ __volatile__("rdtime %0" : "=r"(n));
+  return n >> 20;
+}
+
 // Per-CPU process scheduler.
 // Each CPU calls scheduler() after setting itself up.
 // Scheduler never returns.  It loops, doing:
@@ -480,7 +487,7 @@ void scheduler(void)
         p->cantselect++; // Se incrementa el numero de veces que se selecciono ese proceso.
         c->proc = p;
         swtch(&c->context, &p->context);
-        p->lastexect = ticks; // Se guarda la utlima ejecucion en ticks.
+        p->lastexect = time(); // Se guarda la utlima ejecucion.
         // Process is done running for now.
         // It should have changed its p->state before coming back.
         c->proc = 0;
@@ -689,7 +696,7 @@ void procdump(void)
   struct proc *p;
   char *state;
 
-  printf("\n PID | CANTSELECT | STATE  | NAME  \n");
+  printf("\n PID | CANTSELECT | LASTEXECT | STATE  | NAME  \n");
   for (p = proc; p < &proc[NPROC]; p++)
   {
     if (p->state == UNUSED)
@@ -699,7 +706,7 @@ void procdump(void)
     else
       state = "???";
 
-    printf("  %d  |     %d     | %s | %s", p->pid, p->cantselect, state, p->name);
+    printf("  %d  |     %d     | %d | %s | %s", p->pid, p->cantselect, p->lastexect, state, p->name);
     printf("\n");
   }
 }
@@ -719,7 +726,6 @@ void pstat(int pid)
   }
   if (p != 0)
   {
-    // Imprime la cantidad de veces que fue elegido por el scheduler
     printf("pid: %d, priority: %d, cantselect: %d, lastexect: %d \n", p->pid, priority, p->cantselect, p->lastexect);
     printf("\n");
   }
