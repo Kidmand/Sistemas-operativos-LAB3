@@ -1,0 +1,25 @@
+qemu-system-riscv64 -machine virt -bios none -kernel kernel/kernel -m 128M -smp 1 -nographic -global virtio-mmio.force-legacy=false -drive file=fs.img,if=none,format=raw,id=x0 -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
+
+xv6 kernel is booting
+
+init: starting sh
+$ cpubench
+3: 838 MFLOP100T
+3: 838 MFLOP100T
+3: 831 MFLOP100T
+3: 831 MFLOP100T
+3: 838 MFLOP100T
+3: 838 MFLOP100T
+3: 838 MFLOP100T
+3: 838 MFLOP100T
+3: 838 MFLOP100T
+3: 838 MFLOP100T
+3: 838 MFLOP100T
+3: 845 MFLOP100T
+3: 838 MFLOP100T
+3: 831 MFLOP100T
+3: 838 MFLOP100T
+3: 845 MFLOP100T
+Termino cpubench 3: total ops 3221225472u --> pid: 3, priority: 2, cantselect: 2121, lastexect: 2025 
+
+$ 

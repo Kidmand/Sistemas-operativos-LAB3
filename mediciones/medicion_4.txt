@@ -1,0 +1,44 @@
+qemu-system-riscv64 -machine virt -bios none -kernel kernel/kernel -m 128M -smp 1 -nographic -global virtio-mmio.force-legacy=false -drive file=fs.img,if=none,format=raw,id=x0 -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
+
+xv6 kernel is booting
+
+init: starting sh
+$ cpubench & ; cpubench &
+5: 592 MFLOP100T
+6: 597 MFLOP100T
+6: 1050 MFLOP100T
+5: 1041 MFLOP100T
+5: 1059 MFLOP100T
+6: 1032 MFLOP100T
+5: 1015 MFLOP100T
+6: 1023 MFLOP100T
+5: 1050 MFLOP100T
+6: 1023 MFLOP100T
+5: 1050 MFLOP100T
+6: 1059 MFLOP100T
+6: 1068 MFLOP100T
+5: 1041 MFLOP100T
+6: 1050 MFLOP100T
+5: 1041 MFLOP100T
+6: 1059 MFLOP100T
+5: 1032 MFLOP100T
+6: 1059 MFLOP100T
+5: 1032 MFLOP100T
+6: 1050 MFLOP100T
+5: 1032 MFLOP100T
+6: 1059 MFLOP100T
+5: 1050 MFLOP100T
+6: 1041 MFLOP100T
+5: 1050 MFLOP100T
+6: 1050 MFLOP100T
+5: 1041 MFLOP100T
+6: 1041 MFLOP100T
+5: 1032 MFLOP100T
+6: 1050 MFLOP100T
+5: 1041 MFLOP100T
+6: 1059 MFLOP100T
+5: 1050 MFLOP100T
+Termino cpubench 6: total ops 2751463424u --> pid: 6, priority: 3, cantselect: 1053, lastexect: 2012 
+
+Termino cpubench 5: total ops 2751463424u --> pid: 5, priority: 4, cantselect: 1063, lastexect: 2018 
+

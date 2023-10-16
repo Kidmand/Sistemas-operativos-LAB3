@@ -1,0 +1,28 @@
+qemu-system-riscv64 -machine virt -bios none -kernel kernel/kernel -m 128M -smp 1 -nographic -global virtio-mmio.force-legacy=false -drive file=fs.img,if=none,format=raw,id=x0 -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
+
+xv6 kernel is booting
+
+init: starting sh
+$ iobench
+					3: 6208 OPW100T, 6208 OPR100T
+					3: 6144 OPW100T, 6144 OPR100T
+					3: 6144 OPW100T, 6144 OPR100T
+					3: 6144 OPW100T, 6144 OPR100T
+					3: 6144 OPW100T, 6144 OPR100T
+					3: 6144 OPW100T, 6144 OPR100T
+					3: 6016 OPW100T, 6016 OPR100T
+					3: 6144 OPW100T, 6144 OPR100T
+					3: 6080 OPW100T, 6080 OPR100T
+					3: 6144 OPW100T, 6144 OPR100T
+					3: 6144 OPW100T, 6144 OPR100T
+					3: 6016 OPW100T, 6016 OPR100T
+					3: 6019 OPW100T, 6019 OPR100T
+					3: 6080 OPW100T, 6080 OPR100T
+					3: 6144 OPW100T, 6144 OPR100T
+					3: 6144 OPW100T, 6144 OPR100T
+					3: 6080 OPW100T, 6080 OPR100T
+					3: 6144 OPW100T, 6144 OPR100T
+					3: 6144 OPW100T, 6144 OPR100T
+Termino iobench 3: total ops 232576u -->	pid: 3, priority: 2, cantselect: 383710, lastexect: 2009 
+
+$ 

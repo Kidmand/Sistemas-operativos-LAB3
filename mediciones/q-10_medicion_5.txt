@@ -1,0 +1,64 @@
+qemu-system-riscv64 -machine virt -bios none -kernel kernel/kernel -m 128M -smp 1 -nographic -global virtio-mmio.force-legacy=false -drive file=fs.img,if=none,format=raw,id=x0 -device virtio-blk-device,drive=x0,bus=virtio-mmio-bus.0
+
+xv6 kernel is booting
+
+init: starting sh
+$ cpubench & ; cpubench & ; iobench &
+5: 394 MFLOP100T
+7: 422 MFLOP100T
+					8: 218 OPW100T, 218 OPR100T
+5: 394 MFLOP100T
+					8: 168 OPW100T, 168 OPR100T
+7: 475 MFLOP100T
+5: 682 MFLOP100T
+					8: 166 OPW100T, 166 OPR100T
+7: 1023 MFLOP100T
+5: 967 MFLOP100T
+					8: 166 OPW100T, 166 OPR100T
+7: 1032 MFLOP100T
+5: 958 MFLOP100T
+					8: 166 OPW100T, 166 OPR100T
+7: 1015 MFLOP100T
+5: 949 MFLOP100T
+					8: 166 OPW100T, 166 OPR100T
+7: 1023 MFLOP100T
+5: 949 MFLOP100T
+					8: 168 OPW100T, 168 OPR100T
+5: 958 MFLOP100T
+7: 1023 MFLOP100T
+5: 940 MFLOP100T
+					8: 166 OPW100T, 166 OPR100T
+7: 1015 MFLOP100T
+5: 958 MFLOP100T
+					8: 166 OPW100T, 166 OPR100T
+7: 1023 MFLOP100T
+5: 932 MFLOP100T
+					8: 168 OPW100T, 168 OPR100T
+7: 996 MFLOP100T
+5: 923 MFLOP100T
+7: 996 MFLOP100T
+					8: 166 OPW100T, 166 OPR100T
+5: 958 MFLOP100T
+7: 1032 MFLOP100T
+					8: 166 OPW100T, 166 OPR100T
+5: 967 MFLOP100T
+					8: 166 OPW100T, 166 OPR100T
+7: 1015 MFLOP100T
+5: 940 MFLOP100T
+7: 1006 MFLOP100T
+					8: 168 OPW100T, 168 OPR100T
+5: 932 MFLOP100T
+7: 1006 MFLOP100T
+					8: 166 OPW100T, 166 OPR100T
+5: 940 MFLOP100T
+7: 1015 MFLOP100T
+					8: 166 OPW100T, 166 OPR100T
+5: 932 MFLOP100T
+7: 1006 MFLOP100T
+					8: 166 OPW100T, 166 OPR100T
+Termino cpubench 5: total ops 3825205248u --> pid: 5, priority: 4, cantselect: 10482, lastexect: 2009 
+
+Termino cpubench 7: total ops 1140850688u --> pid: 7, priority: 5, cantselect: 10551, lastexect: 2016 
+
+Termino iobench 8: total ops 6656u -->	pid: 8, priority: 3, cantselect: 10638, lastexect: 2016 
+
