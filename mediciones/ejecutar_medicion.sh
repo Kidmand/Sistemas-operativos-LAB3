@@ -37,7 +37,7 @@ if [ "$numero_de_caso" -lt 1 ] || [ "$numero_de_caso" -gt "${#comandos[@]}" ]; t
 fi
 
 comando="${comandos[$numero_de_caso - 1]}"
-archivo_salida="q-10_medicion_$numero_de_caso.txt"
+archivo_salida="medicion_$numero_de_caso.txt"
 
 echo "Ejecutando el comando: $comando"
 
