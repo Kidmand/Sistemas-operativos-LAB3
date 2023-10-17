@@ -4,6 +4,7 @@
  - Ramiro Lugo Viola
  - Matias Viola Di Benedetto
  - Daián García Giménez 
+ - Mora Syczyk
 
 ---
 Despues borrar esto:
@@ -19,36 +20,23 @@ Estudiando el planificador de xv6-riscv y respondiendo preguntas.
 #### Preguntas
 1. ✅ ¿Qué política de planificación utiliza xv6-riscv para elegir el próximo proceso a ejecutarse?
 2. ✅ ¿Cuánto dura un quantum en xv6-riscv?
-3. ✅ ❓ ¿Cuánto dura un cambio de contexto en xv6-riscv?
-4. ❌ ❓ ¿El cambio de contexto consume tiempo de un quantum?
-5. ❌ ❓ ¿Hay alguna forma de que a un proceso se le asigne menos tiempo? Pista: Se puede empezar a buscar desde la system call uptime.
-6. ✅ ❓ ¿Cúales son los estados en los que un proceso pueden permanecer en xv6-riscv y que los hace cambiar de estado?
+3. ❌ ¿Cuánto dura un cambio de contexto en xv6-riscv? (TERMINAR)
+4. ✅ ¿El cambio de contexto consume tiempo de un quantum? 
+5. ✅ ¿Hay alguna forma de que a un proceso se le asigne menos tiempo?
+6. ✅ ¿Cúales son los estados en los que un proceso pueden permanecer en xv6-riscv y que los hace cambiar de estado?
 
-❓ Preguntar si siempre las interupciones de tiempo se hacer siempre cada un quantum, sin impprtar nada, es decir cada 1 segundo por ejemplo hace una interrupcion.
+Las interrupciones de tiempo se hacer siempre cada un quantum, sin importar nada, es decir cada 1 segundo por ejemplo hace una interrupcion.
 
 #### Respuestas
 1. La politica de planificación que utliza xv6-riscv Round Robin. <br/>
    Nos dimos cuenta, por la funcion `void scheduler(void)` implementada en `kernel/proc.c` y la presencia del timer (quantum).
 2. Un quantum en xv6-riscv dura 1/10 de segundo. <br/>
    Nos dimos cuenta por la funcion `void timerinit()` implementada en `kernel/start.c`.
-3. Pareciera ser que el tiempo del cambio de contexto esta acotado por la cantida de procesos maximos que soporta el SO. Vemos esto en la función `void scheduler(void)` implementada en `kernel/proc.c` y podemos extraer esta sección de la función: <br/> 
-    ``` c 
-    for(p = proc; p < &proc[NPROC]; p++) {
-        acquire(&p->lock);
-        if(p->state == RUNNABLE) {
-            p->state = RUNNING;
-            c->proc = p;
-            swtch(&c->context, &p->context);
-            c->proc = 0;
-        }
-        release(&p->lock);
-    }
-    ```
-    Podemos contar la cantida de intrucciones que se van ejecutar despues de volver del `swtch`, esto conlleva la asignacion `c->proc = 0;` y todas las iteraciones del bucle hasta encontrar un proceso en estado `RUNNABLE`.
-4. ❓ (¿Si esta contenido al principio de la ejecución?) <br/>
-   En otro caso es absurdo pensar esto. Supongamos un proceso cpu-bound (consume el quantum siempre), por lo tanto tenemos un cambio de contexto una vez que el proceso haya consumido todo el quantum, si el cambio de contexto estuviera contenido en el quantum cómo lo haces.
-5. ❓
-   Suponindo que se habla del tiempo de quantum, si se puede porque cuando se hace una llamada a una syscall se produce una intrrupción `yield()` y cambia de contexto.
+3. La manera en la  que pudimos encontrar el tiempo del cambio de contexto es: sabiendo que el quantum contiene el cambio de contexto. Podemos ir     reduciéndolo hasta que deje de ejecutar el propio sistema operativo: idem, hasta que no pueda ejecutar siquiera una instrucción.
+  Finalmente el cambio de contexto es aproximadamente:  --❓--
+4. Las interrupciones por tiempo se ejecutan siempre en el mismo intervalo y nunca se detiene. Como nadie interfiere, el cambio de contexto está contenido en el quantum. 
+5. Si hay una manera, por ejemplo: si tenemos un quantum de 10 segundos y hay un proceso que se ejecuta por 5 segundos y hay una interrupción, comienza a ejecutarse otro porceso y se le asigna el tiempo que queda al quantum por terminar. 
+
 6. Encontramos en `kernel/proc.h` lo siguiente: <br/>
    ```c
    enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
@@ -67,16 +55,14 @@ Estudiando el planificador de xv6-riscv y respondiendo preguntas.
    - ZOMBIE: En `exit` se setea el proceso en ZOMBIE.
 
 ## Segunda Parte: 
-Contabilizar las veces que es elegido un proceso por el planificador y anlaizar cómo el planificador afecta a los procesos.
+Contabilizar las veces que es elegido un proceso por el planificador y analizar cómo el planificador afecta a los procesos.
 
-¿Como lo hicimos?
-Agreamos dos campos al `struc proc` esto son:
+¿Cómo lo hicimos?
+
+Agregamos dos campos al `struc proc`, esto son:
    - `cantselect`: Cuenta cada vez que entra el proceso en el sheduler y se inizializa en 0 en `userinit` y se libera en  `freeproc`. (¿ procinit ?) 
-   - `lastexect`: ❓ Utilizamos una idea similar a la que se una en iobench y cpubench en la funcio time. <br> 
-                   Sino la otra opcion en setea despues de la ejecucion la cantidad de ticks.
-                    
-<br>
-❓Puede ser el indice de la tabla de procesos sea su prioridad?
+   - `lastexect`: Utilizamos una idea similar a la que se una en iobench y cpubench en la función `time()`.
+   - `priority`: No existe en RR.
 
 #### 1) Quantum normal: (`make CPUS=1 qemu`)
 - ✅ Caso 1: (un solo iobench)
