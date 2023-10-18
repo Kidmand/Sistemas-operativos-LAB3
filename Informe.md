@@ -82,7 +82,8 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
 
   **Conclusión:** <br/>
   El proceso iobench esta ejecutando practicamente solo en el SO, por lo tanto puede hacer muchas operaciones de R/W. Ademas tiene sentido que cantselect sea grande porque nunca supera el quantum y se produce una interrupción cada vez que hay un R/W. Ademas se ve una clara diferencia en la cantidad de operaciones respecto al segundo escenario. <br/>
-  **Output del escenario**: `mediciones/medicion_1.txt` . <br/>
+  **Output del escenario**: `mediciones/medicion_1.txt` .
+
 - ✅ **Escenario 2:**<br/>
   El comando ejecutado fue `cpubench` y se recopilo la siguiente información:
 
@@ -93,7 +94,8 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
 
   **Conclusión:** <br/>
   El proceso cpubench esta ejecutando practicamente solo en el SO, y al ser cpu-bound siempre consume el quantum. Por esta razon es que cantselect es similar a lastexect. Ademas se ve una clara diferencia en la cantidad de operaciones respecto al caso uno. <br/>
-  **Output del escenario**: `mediciones/medicion_2.txt` . <br/>
+  **Output del escenario**: `mediciones/medicion_2.txt` .
+
 - ✅❌ ❓ **Escenario 3:** <br/>
   El comando ejecutado fue `iobench & ; cpubench &` y se recopilo la siguiente información:
 
@@ -107,7 +109,8 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
 
   **Conclusión:** <br/>
   Encontramos en cpubench que se esta guradando en memoria las operaciones de la matriz y esto consume I/O, dejandole menos I/O al iobench, por esta razon se reducen las R/W. <br/>
-  **Output del escenario**: `mediciones/medicion_3.txt` . <br/>
+  **Output del escenario**: `mediciones/medicion_3.txt` .
+
 - ✅ **Escenario 4:** <br/>
   El comando ejecutado fue `cpubench & ; cpubench &` y se recopilo la siguiente información:
 
@@ -120,7 +123,8 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
 
   **Conclusión:** <br/>
   Al tener dos procesos cpubench tiene sentido que se consume constantemente el quantum, por esta razon se da que lastexect sea el doble que cantselect, justamenete tenemos dos procesos cpu-bound. Nuevamente se ve una gran cantidad de operaciones. <br/>
-  **Output del escenario**: `mediciones/medicion_4.txt` . <br/>
+  **Output del escenario**: `mediciones/medicion_4.txt` .
+
 - ❌ ❓ **Escenario 5:** <br/>  
   El comando ejecutado fue `cpubench & ; cpubench & ; iobench &` y se recopilo la siguiente información:
 
@@ -136,7 +140,8 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
 
   **Conclusión:** <br/>
   Completar ... <br/>
-  **Output del escenario**: `mediciones/medicion_5.txt` . <br/>
+  **Output del escenario**: `mediciones/medicion_5.txt` .
+
 
 #### 2) Quantum 10 veces más corto: 
 Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las siguientes condiciones:
@@ -158,7 +163,8 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
 
   **Conclusión:** <br/>
   Completar ... <br/>
-  **Output del escenario**: `mediciones/q-10_medicion_1.txt` .<br/>
+  **Output del escenario**: `mediciones/q-10_medicion_1.txt` .
+
 - ❌ **Escenario 2:**<br/>
   El comando ejecutado fue `cpubench` y se recopilo la siguiente información:
 
@@ -169,7 +175,8 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
 
   **Conclusión:** <br/>
   Completar ... <br/>
-  **Output del escenario**: `mediciones/q-10_medicion_2.txt` . <br/>
+  **Output del escenario**: `mediciones/q-10_medicion_2.txt` . 
+
 - ❌ **Escenario 3:** <br/>
   El comando ejecutado fue `iobench & ; cpubench &` y se recopilo la siguiente información:
 
@@ -196,7 +203,8 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
 
   **Conclusión:** <br/>
   Completar ... <br/>
-  **Output del escenario**: `mediciones/q-10_medicion_4.txt` .<br/>
+  **Output del escenario**: `mediciones/q-10_medicion_4.txt` .
+  
 - ❌**Escenario 5:** <br/>  
   El comando ejecutado fue `cpubench & ; cpubench & ; iobench &` y se recopilo la siguiente información:
 
