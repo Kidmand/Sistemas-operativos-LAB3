@@ -71,7 +71,7 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
 | ---------------------------------------------------- | ------- | ------------------ | --------------- |
 | Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz   2.21 GHz | 1000000 | Round Robin        | 1               |
 
-- ✅ **Escenario 1:** <br/>
+##### ✅ **Escenario 1:** <br/>
   El comando ejecutado fue `iobench` y se recopilo la siguiente información:
 
   | Parámetro          |  Valor  |
@@ -84,7 +84,7 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
   El proceso iobench esta ejecutando practicamente solo en el SO, por lo tanto puede hacer muchas operaciones de R/W. Ademas tiene sentido que cantselect sea grande porque nunca supera el quantum y se produce una interrupción cada vez que hay un R/W. Ademas se ve una clara diferencia en la cantidad de operaciones respecto al segundo escenario. <br/>
   **Output del escenario**: `mediciones/medicion_1.txt` .
 
-- ✅ **Escenario 2:**<br/>
+##### ✅ **Escenario 2:**<br/>
   El comando ejecutado fue `cpubench` y se recopilo la siguiente información:
 
   | Parámetro          |  Valor  |
@@ -96,7 +96,7 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
   El proceso cpubench esta ejecutando practicamente solo en el SO, y al ser cpu-bound siempre consume el quantum. Por esta razon es que cantselect es similar a lastexect. Ademas se ve una clara diferencia en la cantidad de operaciones respecto al caso uno. <br/>
   **Output del escenario**: `mediciones/medicion_2.txt` .
 
-- ✅❌ ❓ **Escenario 3:** <br/>
+##### ✅❌ ❓ **Escenario 3:** <br/>
   El comando ejecutado fue `iobench & ; cpubench &` y se recopilo la siguiente información:
 
   | Parámetro               | Valor |
@@ -111,7 +111,7 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
   Encontramos en cpubench que se esta guradando en memoria las operaciones de la matriz y esto consume I/O, dejandole menos I/O al iobench, por esta razon se reducen las R/W. <br/>
   **Output del escenario**: `mediciones/medicion_3.txt` .
 
-- ✅ **Escenario 4:** <br/>
+##### ✅ **Escenario 4:** <br/>
   El comando ejecutado fue `cpubench & ; cpubench &` y se recopilo la siguiente información:
 
   | Parámetro                       |  Valor  |
@@ -125,7 +125,7 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
   Al tener dos procesos cpubench tiene sentido que se consume constantemente el quantum, por esta razon se da que lastexect sea el doble que cantselect, justamenete tenemos dos procesos cpu-bound. Nuevamente se ve una gran cantidad de operaciones. <br/>
   **Output del escenario**: `mediciones/medicion_4.txt` .
 
-- ❌ ❓ **Escenario 5:** <br/>  
+##### ❌ ❓ **Escenario 5:** <br/>  
   El comando ejecutado fue `cpubench & ; cpubench & ; iobench &` y se recopilo la siguiente información:
 
   | Parámetro                       | Valor |
@@ -152,7 +152,7 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
 
 Aclaración, para hacer este test se modificio la varaible `interval` en `kernel/start.c:69`
 
-- ❌ **Escenario 1:**<br/>
+##### ❌ **Escenario 1:**<br/>
   El comando ejecutado fue `iobench` y se recopilo la siguiente información:
 
   | Parámetro          | Valor |
@@ -165,7 +165,7 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
   Completar ... <br/>
   **Output del escenario**: `mediciones/q-10_medicion_1.txt` .
 
-- ❌ **Escenario 2:**<br/>
+##### ❌ **Escenario 2:**<br/>
   El comando ejecutado fue `cpubench` y se recopilo la siguiente información:
 
   | Parámetro          | Valor |
@@ -177,7 +177,7 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
   Completar ... <br/>
   **Output del escenario**: `mediciones/q-10_medicion_2.txt` . 
 
-- ❌ **Escenario 3:** <br/>
+##### ❌ **Escenario 3:** <br/>
   El comando ejecutado fue `iobench & ; cpubench &` y se recopilo la siguiente información:
 
   | Parámetro               | Valor |
@@ -191,7 +191,7 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
   **Conclusión:** <br/>
   Completar ... <br/>
   **Output del escenario**: `mediciones/q-10_medicion_3.txt` .
-- ❌ **Escenario 4:** <br/>
+##### ❌ **Escenario 4:** <br/>
   El comando ejecutado fue `cpubench & ; cpubench &` y se recopilo la siguiente información:
 
   | Parámetro                       | Valor |
@@ -204,8 +204,8 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
   **Conclusión:** <br/>
   Completar ... <br/>
   **Output del escenario**: `mediciones/q-10_medicion_4.txt` .
-  
-- ❌**Escenario 5:** <br/>  
+
+##### ❌**Escenario 5:** <br/>  
   El comando ejecutado fue `cpubench & ; cpubench & ; iobench &` y se recopilo la siguiente información:
 
   | Parámetro                       | Valor |
