@@ -67,9 +67,9 @@ Para realizar los distintos escenarios, lo automatizamos con el programa `medici
 #### 1) Quantum normal:
 Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las siguientes condiciones:
 
-| Hardware                                             | Quantum | Politica Scheduler | Cantidad de CPU |
-| ---------------------------------------------------- | ------- | ------------------ | --------------- |
-| Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz   2.21 GHz | 1000000 | Round Robin        | 1               |
+| Hardware                              | Quantum | Politica Scheduler | Cantidad de CPU | Software   |
+| ------------------------------------- | ------- | ------------------ | --------------- | ---------- |
+| Intel(R) Core(TM) i7-10870H  2.21 GHz | 1000000 | Round Robin        | 1               | Qemu 6.2.0 |
 
 ##### ✅ **Escenario 1:** <br/>
   El comando ejecutado fue `iobench` y se recopilo la siguiente información:
@@ -99,13 +99,13 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
 ##### ✅❌ ❓ **Escenario 3:** <br/>
   El comando ejecutado fue `iobench & ; cpubench &` y se recopilo la siguiente información:
 
-  | Parámetro               | Valor |
-  | :---------------------- | :---: |
-  | Promedio OPW /100T      |       |
-  | Promedio OPR /100T      |       |
-  | Promedio MFLOP100T      |       |
-  | Cant. select (iobench)  |       |
-  | Cant. select (cpubench) |       |
+  | Parámetro               |  Valor  |
+  | :---------------------- | :-----: |
+  | Promedio OPW /100T      |  36.1   |
+  | Promedio OPR /100T      |  36.1   |
+  | Promedio MFLOP100T      | 841.438 |
+  | Cant. select (iobench)  |  2216   |
+  | Cant. select (cpubench) |  2112   |
 
   **Conclusión:** <br/>
   Encontramos en cpubench que se esta guradando en memoria las operaciones de la matriz y esto consume I/O, dejandole menos I/O al iobench, por esta razon se reducen las R/W. <br/>
@@ -128,15 +128,15 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
 ##### ❌ ❓ **Escenario 5:** <br/>  
   El comando ejecutado fue `cpubench & ; cpubench & ; iobench &` y se recopilo la siguiente información:
 
-  | Parámetro                       | Valor |
-  | :------------------------------ | :---: |
-  | Promedio MFLOP100T (cpubench-1) |       |
-  | Promedio MFLOP100T (cpubench-2) |       |
-  | Promedio OPW /100T (iobench)    |       |
-  | Promedio OPR /100T (iobench)    |       |
-  | Cant. select       (cpubench-1) |       |
-  | Cant. select       (cpubench-2) |       |
-  | Cant. select       (iobench)    |       |
+  | Parámetro                       |  Valor  |
+  | :------------------------------ | :-----: |
+  | Promedio MFLOP100T (cpubench-1) | 1021.18 |
+  | Promedio MFLOP100T (cpubench-2) | 1004.35 |
+  | Promedio OPW /100T (iobench)    |  18.6   |
+  | Promedio OPR /100T (iobench)    |  18.6   |
+  | Cant. select       (cpubench-1) |  1057   |
+  | Cant. select       (cpubench-2) |  1061   |
+  | Cant. select       (iobench)    |  1237   |
 
   **Conclusión:** <br/>
   Completar ... <br/>
@@ -146,20 +146,20 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
 #### 2) Quantum 10 veces más corto: 
 Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las siguientes condiciones:
 
-| Hardware                                             | Quantum | Politica Scheduler | Cantidad de CPU |
-| ---------------------------------------------------- | ------- | ------------------ | --------------- |
-| Intel(R) Core(TM) i7-10870H CPU @ 2.20GHz   2.21 GHz | 100000  | Round Robin        | 1               |
+| Hardware                              | Quantum | Politica Scheduler | Cantidad de CPU | Software   |
+| ------------------------------------- | ------- | ------------------ | --------------- | ---------- |
+| Intel(R) Core(TM) i7-10870H  2.21 GHz | 100000  | Round Robin        | 1               | Qemu 6.2.0 |
 
 Aclaración, para hacer este test se modificio la varaible `interval` en `kernel/start.c:69`
 
 ##### ❌ **Escenario 1:**<br/>
   El comando ejecutado fue `iobench` y se recopilo la siguiente información:
 
-  | Parámetro          | Valor |
-  | :----------------- | :---: |
-  | Promedio OPW /100T |       |
-  | Promedio OPR /100T |       |
-  | Cant. select       |       |
+  | Parámetro          |  Valor  |
+  | :----------------- | :-----: |
+  | Promedio OPW /100T | 6224.84 |
+  | Promedio OPR /100T | 6224.84 |
+  | Cant. select       | 399548  |
 
   **Conclusión:** <br/>
   Completar ... <br/>
@@ -170,8 +170,8 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
 
   | Parámetro          | Valor |
   | :----------------- | :---: |
-  | Promedio MFLOP100T |       |
-  | Cant. select       |       |
+  | Promedio MFLOP100T |  837  |
+  | Cant. select       | 21169 |
 
   **Conclusión:** <br/>
   Completar ... <br/>
@@ -180,26 +180,27 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
 ##### ❌ **Escenario 3:** <br/>
   El comando ejecutado fue `iobench & ; cpubench &` y se recopilo la siguiente información:
 
-  | Parámetro               | Valor |
-  | :---------------------- | :---: |
-  | Promedio OPW /100T      |       |
-  | Promedio OPR /100T      |       |
-  | Promedio MFLOP100T      |       |
-  | Cant. select (iobench)  |       |
-  | Cant. select (cpubench) |       |
+  | Parámetro               |  Valor  |
+  | :---------------------- | :-----: |
+  | Promedio OPW /100T      | 337.176 |
+  | Promedio OPR /100T      | 337.176 |
+  | Promedio MFLOP100T      | 796.579 |
+  | Cant. select (iobench)  |  21035  |
+  | Cant. select (cpubench) |  21168  |
 
   **Conclusión:** <br/>
   Completar ... <br/>
   **Output del escenario**: `mediciones/q-10_medicion_3.txt` .
+
 ##### ❌ **Escenario 4:** <br/>
   El comando ejecutado fue `cpubench & ; cpubench &` y se recopilo la siguiente información:
 
-  | Parámetro                       | Valor |
-  | :------------------------------ | :---: |
-  | Promedio MFLOP100T (cpubench-1) |       |
-  | Promedio MFLOP100T (cpubench-2) |       |
-  | Cant. select       (cpubench-1) |       |
-  | Cant. select       (cpubench-2) |       |
+  | Parámetro                       |  Valor  |
+  | :------------------------------ | :-----: |
+  | Promedio MFLOP100T (cpubench-1) | 1000.94 |
+  | Promedio MFLOP100T (cpubench-2) | 996.333 |
+  | Cant. select       (cpubench-1) |  10528  |
+  | Cant. select       (cpubench-2) |  10567  |
 
   **Conclusión:** <br/>
   Completar ... <br/>
@@ -208,15 +209,15 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
 ##### ❌**Escenario 5:** <br/>  
   El comando ejecutado fue `cpubench & ; cpubench & ; iobench &` y se recopilo la siguiente información:
 
-  | Parámetro                       | Valor |
-  | :------------------------------ | :---: |
-  | Promedio MFLOP100T (cpubench-1) |       |
-  | Promedio MFLOP100T (cpubench-2) |       |
-  | Promedio OPW /100T (iobench)    |       |
-  | Promedio OPR /100T (iobench)    |       |
-  | Cant. select       (cpubench-1) |       |
-  | Cant. select       (cpubench-2) |       |
-  | Cant. select       (iobench)    |       |
+  | Parámetro                       |  Valor  |
+  | :------------------------------ | :-----: |
+  | Promedio MFLOP100T (cpubench-1) | 870.722 |
+  | Promedio MFLOP100T (cpubench-2) | 948.412 |
+  | Promedio OPW /100T (iobench)    | 169.529 |
+  | Promedio OPR /100T (iobench)    | 169.529 |
+  | Cant. select       (cpubench-1) |  10482  |
+  | Cant. select       (cpubench-2) |  10551  |
+  | Cant. select       (iobench)    |  10638  |
 
   **Conclusión:** <br/>
   Completar ... <br/>
