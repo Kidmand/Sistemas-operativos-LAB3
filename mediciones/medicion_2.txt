@@ -20,6 +20,6 @@ $ cpubench
 3: 831 MFLOP100T
 3: 838 MFLOP100T
 3: 845 MFLOP100T
-Termino cpubench 3: total ops 3221225472u --> pid: 3, priority: 2, cantselect: 2121, lastexect: 2025 
+Termino cpubench 3: total ops 3221225472u --> pid: 3, priority: 0, cantselect: 2121, lastexect: 2025 
 
 $ 

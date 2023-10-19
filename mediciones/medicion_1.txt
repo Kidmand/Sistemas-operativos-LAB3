@@ -23,6 +23,6 @@ $ iobench
 					3: 6080 OPW100T, 6080 OPR100T
 					3: 6144 OPW100T, 6144 OPR100T
 					3: 6144 OPW100T, 6144 OPR100T
-Termino iobench 3: total ops 232576u -->	pid: 3, priority: --, cantselect: 383710, lastexect: 2009 
+Termino iobench 3: total ops 232576u -->	pid: 3, priority: 0, cantselect: 383710, lastexect: 2009 
 
 $ 

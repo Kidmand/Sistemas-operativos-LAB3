@@ -29,8 +29,8 @@ $ iobench & ; cpubench &
 6: 853 MFLOP100T
 6: 845 MFLOP100T
 					5: 33 OPW100T, 33 OPR100T
-Termino cpubench 6: total ops 3221225472u --> pid: 6, priority: 3, cantselect: 2112, lastexect: 2017 
+Termino cpubench 6: total ops 3221225472u --> pid: 6, priority: 0, cantselect: 2112, lastexect: 2017 
 
 					5: 33 OPW100T, 33 OPR100T
-Termino iobench 5: total ops 1408u -->	pid: 5, priority: 4, cantselect: 2216, lastexect: 2018 
+Termino iobench 5: total ops 1408u -->	pid: 5, priority: --, cantselect: 2216, lastexect: 2018 
 

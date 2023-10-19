@@ -174,6 +174,7 @@ freeproc(struct proc *p)
   p->xstate = 0;
   p->cantselect = 0;
   p->state = UNUSED;
+  p->priority = 0;
 }
 
 // Create a user page table for a given process, with no user memory,
@@ -255,6 +256,7 @@ void userinit(void)
 
   p->state = RUNNABLE;
   p->cantselect = 0; // Inicializamos el contador de ejecuciones.
+  p->priority = 0;
 
   release(&p->lock);
 }
@@ -681,6 +683,26 @@ int either_copyin(void *dst, int user_src, uint64 src, uint64 len)
   }
 }
 
+int contarCifras(int numero)
+{
+  int contador = 0;
+
+  if (numero == 0)
+  {
+    return 1; // Si el número es 0, tiene una cifra.
+  }
+
+  numero = (numero < 0) ? -numero : numero;
+
+  while (numero > 0)
+  {
+    contador++;
+    numero = numero / 10;
+  }
+
+  return contador;
+}
+
 // Print a process listing to console.  For debugging.
 // Runs when user types ^P on console.
 // No lock to avoid wedging a stuck machine further.
@@ -696,7 +718,7 @@ void procdump(void)
   struct proc *p;
   char *state;
 
-  printf("\n PID | CANTSELECT | LASTEXECT | STATE  | NAME  \n");
+  printf("\n PID | PRIO | STATE  | CANTSELECT | LASTEXECT | NAME  \n");
   for (p = proc; p < &proc[NPROC]; p++)
   {
     if (p->state == UNUSED)
@@ -706,7 +728,27 @@ void procdump(void)
     else
       state = "???";
 
-    printf("  %d  |     %d     | %d | %s | %s", p->pid, p->cantselect, p->lastexect, state, p->name);
+    // Se imprime el id del proceso, su prioridad y su estado.
+    printf("  %d  |  %d   | %s ", p->pid, p->priority, state);
+
+    // Se imprime cantselect, pero se calculan los espacios para que no se desface.
+    int space_cifras_cantselect = 10 - contarCifras(p->cantselect);
+    char space_cantselect[space_cifras_cantselect];
+    for (int i = 0; i < space_cifras_cantselect; i++)
+      space_cantselect[i] = ' ';
+    space_cantselect[space_cifras_cantselect] = '\0';
+    printf("| %d %s", p->cantselect, space_cantselect);
+
+    // Se imprime lastexect, pero se calculan los espacios para que no se desface.
+    int space_cifras_lastexect = 9 - contarCifras(p->lastexect);
+    char space_lastexect[space_cifras_lastexect];
+    for (int i = 0; i < space_cifras_lastexect; i++)
+      space_lastexect[i] = ' ';
+    space_lastexect[space_cifras_lastexect] = '\0';
+    printf("| %d %s", p->lastexect, space_lastexect);
+
+    // Se imprime el nombre del proceso.
+    printf("| %s", p->name);
     printf("\n");
   }
 }
@@ -715,18 +757,15 @@ void pstat(int pid)
 {
   // proc[pid]
   struct proc *p = 0;
-  int priority = 0;
   for (int i = 0; i < NPROC; i++)
   {
     if (pid == proc[i].pid)
-    {
       p = &proc[i];
-      priority = i;
-    }
   }
+
   if (p != 0)
   {
-    printf("pid: %d, priority: %d, cantselect: %d, lastexect: %d \n", p->pid, priority, p->cantselect, p->lastexect);
+    printf("pid: %d, priority: %d, cantselect: %d, lastexect: %d \n", p->pid, p->priority, p->cantselect, p->lastexect);
     printf("\n");
   }
   else

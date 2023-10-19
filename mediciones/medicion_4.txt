@@ -38,7 +38,7 @@ $ cpubench & ; cpubench &
 5: 1041 MFLOP100T
 6: 1059 MFLOP100T
 5: 1050 MFLOP100T
-Termino cpubench 6: total ops 2751463424u --> pid: 6, priority: 3, cantselect: 1053, lastexect: 2012 
+Termino cpubench 6: total ops 2751463424u --> pid: 6, priority: 0, cantselect: 1053, lastexect: 2012 
 
-Termino cpubench 5: total ops 2751463424u --> pid: 5, priority: 4, cantselect: 1063, lastexect: 2018 
+Termino cpubench 5: total ops 2751463424u --> pid: 5, priority: 0, cantselect: 1063, lastexect: 2018 
 

@@ -92,6 +92,8 @@ enum procstate
   ZOMBIE
 };
 
+#define NPRIO 1
+
 // Per-process state
 struct proc
 {
@@ -117,6 +119,7 @@ struct proc
   struct inode *cwd;           // Current directory
   char name[16];               // Process name (debugging)
 
-  int cantselect; // Cantidad de veces que fue elegido ese proceso por el planificador.
-  int lastexect;  // Se guarda la ultima ejecucion en ticks.
+  unsigned int cantselect; // Cantidad de veces que fue elegido ese proceso por el planificador.
+  unsigned int lastexect;  // Se guarda la ultima ejecucion en ticks.
+  unsigned int priority;   // Prioridad del proceso (este valor debe ser menor estricto que NPRIO).
 };
