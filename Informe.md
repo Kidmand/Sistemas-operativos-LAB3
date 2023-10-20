@@ -240,3 +240,7 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
   **Conclusión:** <br/>
   Podemos ver que los datos se relacionan bastante con lo ocurrido en los otros escenarios. Los `cpubench` se ejecutan similar al escenario 5 con quantum normal nada mas que se aumento en un factor de 10 la cantidad de veces que fue selecionado y con el proceso `iobench` simplemente aumento la cantida en un factor de 10 respecto a la ejecucion del escenario 5 con quantum normal. <br/>
   **Output del escenario**: `mediciones/q-10_medicion_5.txt` .
+
+  ## Tercera Parte:
+  
+  Rastreando la prioridad de los procesos
