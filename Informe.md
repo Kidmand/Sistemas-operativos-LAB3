@@ -79,6 +79,7 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
   | Promedio OPW /100T | 6117.21 |
   | Promedio OPR /100T | 6117.21 |
   | Cant. select       | 383710  |
+  | Last exect         |  2009   |
 
   **Conclusión:** <br/>
   El proceso iobench esta ejecutando practicamente solo en el SO, por lo tanto puede hacer muchas operaciones de R/W. Ademas tiene sentido que cantselect sea grande porque nunca supera el quantum y se produce una interrupción cada vez que hay un R/W. Ademas se ve una clara diferencia en la cantidad de operaciones respecto al segundo escenario. <br/>
@@ -91,12 +92,13 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
   | :----------------- | :-----: |
   | Promedio MFLOP100T | 837.562 |
   | Cant. select       |  2121   |
+  | Last exect         |  2025   |
 
   **Conclusión:** <br/>
   El proceso cpubench esta ejecutando practicamente solo en el SO, y al ser cpu-bound siempre consume el quantum. Por esta razon es que cantselect es similar a lastexect. Ademas se ve una clara diferencia en la cantidad de operaciones respecto al caso uno. <br/>
   **Output del escenario**: `mediciones/medicion_2.txt` .
 
-##### ✅❌ ❓ **Escenario 3:** <br/>
+##### ✅❓**Escenario 3:** <br/>
   El comando ejecutado fue `iobench & ; cpubench &` y se recopilo la siguiente información:
 
   | Parámetro               |  Valor  |
@@ -106,9 +108,11 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
   | Promedio MFLOP100T      | 841.438 |
   | Cant. select (iobench)  |  2216   |
   | Cant. select (cpubench) |  2112   |
+  | Last exect   (iobench)  |  2018   |
+  | Last exect   (cpubench) |  2017   |
 
   **Conclusión:** <br/>
-  Encontramos en cpubench que se esta guradando en memoria las operaciones de la matriz y esto consume I/O, dejandole menos I/O al iobench, por esta razon se reducen las R/W. <br/>
+  Podemos ver que `cpubench` se comporta similar que ejecutando solo, pero `iobench` decremento muchisimo la cantidad de R/W.  Esto sucede porque `iobench` tiene que esperar que `cpubench` que complete un quantum para poder volver a ejecutar. En el escenario 1 se puede ver como en un intervalo de tiempo `iobench` puede ejecutar muchisimas R/W porque no tiene que esperar a nadie, simplemente cuando termina vuelve a ejecutar. <br/>
   **Output del escenario**: `mediciones/medicion_3.txt` .
 
 ##### ✅ **Escenario 4:** <br/>
@@ -120,12 +124,14 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
   | Promedio MFLOP100T (cpubench-2) | 1021.76 |
   | Cant. select       (cpubench-1) |  1063   |
   | Cant. select       (cpubench-2) |  1053   |
+  | Last exect         (cpubench-1) |  2018   |
+  | Last exect         (cpubench-2) |  2012   |
 
   **Conclusión:** <br/>
-  Al tener dos procesos cpubench tiene sentido que se consume constantemente el quantum, por esta razon se da que lastexect sea el doble que cantselect, justamenete tenemos dos procesos cpu-bound. Nuevamente se ve una gran cantidad de operaciones. <br/>
+  Al tener dos procesos cpubench tiene sentido que se consume constantemente el quantum, por esta razon se da que lastexect sea el doble que cantselect, justamente tenemos dos procesos cpu-bound. Nuevamente se ve una gran cantidad de operaciones. <br/>
   **Output del escenario**: `mediciones/medicion_4.txt` .
 
-##### ❌ ❓ **Escenario 5:** <br/>  
+##### ✅❓**Escenario 5:** <br/>  
   El comando ejecutado fue `cpubench & ; cpubench & ; iobench &` y se recopilo la siguiente información:
 
   | Parámetro                       |  Valor  |
@@ -137,9 +143,12 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
   | Cant. select       (cpubench-1) |  1057   |
   | Cant. select       (cpubench-2) |  1061   |
   | Cant. select       (iobench)    |  1237   |
+  | Last exect         (cpubench-1) |  2012   |
+  | Last exect         (cpubench-2) |  2020   |
+  | Last exect         (iobench)    |  2021   |
 
   **Conclusión:** <br/>
-  Completar ... <br/>
+  Nuevamente tenemos la misma situacion que en el escenario 4 respecto a los `cpubench`. Donde podemos notar algo intereseante es en la cantida de R/W que puede hacer `iobench`, esto sucede por algo similar a lo que pasa en el escenario 3,  nuevamente tenemos que para que se ejecute `iobench` tiene que esperar a los procesos `cpubench` que consuman su quantum. Podemos ver que inluso la cantidad de R/W es casi la mitad que en el escenario 3, esto se debe a que justamente hay el doble de procesos `cpubench`.<br/>
   **Output del escenario**: `mediciones/medicion_5.txt` .
 
 
@@ -152,7 +161,7 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
 
 Aclaración, para hacer este test se modificio la varaible `interval` en `kernel/start.c:69`
 
-##### ❌ **Escenario 1:**<br/>
+##### ✅❓**Escenario 1:**<br/>
   El comando ejecutado fue `iobench` y se recopilo la siguiente información:
 
   | Parámetro          |  Valor  |
@@ -160,24 +169,26 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
   | Promedio OPW /100T | 6224.84 |
   | Promedio OPR /100T | 6224.84 |
   | Cant. select       | 399548  |
+  | Last exect         |  2008   |
 
   **Conclusión:** <br/>
-  Completar ... <br/>
+  Podemos ver que practicamente no hay diferencias respecto al escenario 1 con el quantum normal, esto sucede porque justamente al ser I/O nunca se termina de consumir el quantum.<br/>
   **Output del escenario**: `mediciones/q-10_medicion_1.txt` .
 
-##### ❌ **Escenario 2:**<br/>
+##### ✅❓**Escenario 2:**<br/>
   El comando ejecutado fue `cpubench` y se recopilo la siguiente información:
 
   | Parámetro          | Valor |
   | :----------------- | :---: |
   | Promedio MFLOP100T |  837  |
   | Cant. select       | 21169 |
+  | Last exect         | 2027  |
 
   **Conclusión:** <br/>
-  Completar ... <br/>
+  En este escenario si podemos notar una diferencia al escenario 2 del quantuma normal. Tenemos que se aumento en un factor de 10 aproxiamdamente la cantidad de veces que fue seleccionado.  Esto sucede porque el procesos es cpu-bound y consume constantemente el quantum, el cual se achico en un factor de 10. <br/>
   **Output del escenario**: `mediciones/q-10_medicion_2.txt` . 
 
-##### ❌ **Escenario 3:** <br/>
+##### ✅❓**Escenario 3:** <br/>
   El comando ejecutado fue `iobench & ; cpubench &` y se recopilo la siguiente información:
 
   | Parámetro               |  Valor  |
@@ -187,12 +198,14 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
   | Promedio MFLOP100T      | 796.579 |
   | Cant. select (iobench)  |  21035  |
   | Cant. select (cpubench) |  21168  |
+  | Last exect   (iobench)  |  2016   |
+  | Last exect   (cpubench) |  2029   |
 
   **Conclusión:** <br/>
-  Completar ... <br/>
+  Podemos ver respecto al escenario 3 del quantum normal que el proceso `cpubench` se ejecuta muy parecido, donde hay cambios es el proceso `iobench`, el cual aumento en un factor de 10 la cantidad de R/W, esto sucede porque tiene como justamente tiene que esperar al proceso `cpubench` complete un quantum, esta vez tendra que esperar 10 veces menos.<br/>
   **Output del escenario**: `mediciones/q-10_medicion_3.txt` .
 
-##### ❌ **Escenario 4:** <br/>
+##### ✅❓**Escenario 4:** <br/>
   El comando ejecutado fue `cpubench & ; cpubench &` y se recopilo la siguiente información:
 
   | Parámetro                       |  Valor  |
@@ -201,12 +214,14 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
   | Promedio MFLOP100T (cpubench-2) | 996.333 |
   | Cant. select       (cpubench-1) |  10528  |
   | Cant. select       (cpubench-2) |  10567  |
+  | Last exect         (cpubench-1) |  2016   |
+  | Last exect         (cpubench-2) |  2020   |
 
   **Conclusión:** <br/>
-  Completar ... <br/>
+  Podemos ver que los resolutados en el "Promedio MFLOP100T" de los procesos `cpubench` practicamnete no cambiaron respecto al escenario 4 del quantum normal, pero si cambio en la cantidad de veces que fue selecionado, similar al escenario 2 aumentaron en un factor de 10 y lo interesante es que se sigue manteniendo que una proporcion de que lastexect * 10 sea el doble que los lastexet como en el esenario del quantum normal. <br/> 
   **Output del escenario**: `mediciones/q-10_medicion_4.txt` .
 
-##### ❌**Escenario 5:** <br/>  
+##### ✅❓**Escenario 5:** <br/>  
   El comando ejecutado fue `cpubench & ; cpubench & ; iobench &` y se recopilo la siguiente información:
 
   | Parámetro                       |  Valor  |
@@ -218,7 +233,10 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
   | Cant. select       (cpubench-1) |  10482  |
   | Cant. select       (cpubench-2) |  10551  |
   | Cant. select       (iobench)    |  10638  |
+  | Last exect         (cpubench-1) |  2009   |
+  | Last exect         (cpubench-2) |  2016   |
+  | Last exect         (iobench)    |  2016   |
 
   **Conclusión:** <br/>
-  Completar ... <br/>
+  Podemos ver que los datos se relacionan bastante con lo ocurrido en los otros escenarios. Los `cpubench` se ejecutan similar al escenario 5 con quantum normal nada mas que se aumento en un factor de 10 la cantidad de veces que fue selecionado y con el proceso `iobench` simplemente aumento la cantida en un factor de 10 respecto a la ejecucion del escenario 5 con quantum normal. <br/>
   **Output del escenario**: `mediciones/q-10_medicion_5.txt` .
