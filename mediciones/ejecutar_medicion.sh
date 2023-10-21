@@ -48,13 +48,13 @@ cd ..
 (
   sleep 1
   echo -e "$comando"
-) | make qemu CPUS=1 >"./${short_op}mediciones/$archivo_salida" &
+) | make qemu CPUS=1 >"./mediciones/${short_op}$archivo_salida" &
 
 cantidad_puntos_y_comas=$(echo "$comando" | tr -cd ';' | wc -c)
 
 cantidad_termino=$(expr $cantidad_puntos_y_comas + 1)
 # Espera hasta que aparezca la palabra "DONE" dos veces en el archivo
-while [ $(grep -c "Termino" "./${short_op}mediciones/$archivo_salida") -ne $cantidad_termino ]; do
+while [ $(grep -c "Termino" "./mediciones/${short_op}$archivo_salida") -ne $cantidad_termino ]; do
   echo -ne "  \\r\\" # Imprime "\" y coloca el cursor al principio de la línea
   sleep 0.5
   echo -ne "  \\r/" # Imprime "-" y coloca el cursor al principio de la línea
