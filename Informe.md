@@ -248,7 +248,7 @@ Aclaración, para hacer este test se modificio la varaible `interval` en `kernel
 ### Implementando la regla 3: 
 **MLFQ regla 3:**
 Cuando un proceso se inicia, su prioridad será minima.
-Esto se puede hacer en `kernel/proc.c` en la funcion `allocproc` luego de que el proceso se asigne en la tabla de procesos.
+Esto se puede hacer en `kernel/proc.c` en la funcion `allocproc()` luego de que el proceso se asigne en la tabla de procesos.
 ```
 found:
 p->pid = allocpid();
@@ -261,19 +261,20 @@ p->priority = 0;
 1) Ascender de prioridad cada vez que el proceso pasa todo un quantum realizando cómputo. 
 2) Descender de prioridad cada vez que el proceso se bloquea antes de terminar su quantum.
 
-Lo primero que pensamos fue buscar en `kernel/trap.c` para encontrar como detectar si fue una interrupcion de tiempo o otra cosa.
-
-Logramos ver que en las funciones `usertrap` y `kerneltrap` del archivo `kernel/trap.c`, revisan que hacer si fue un interrupcion     de tiempo o de una system call desde espacio de usuario.  Casualmente cuando hay una interupcion de tiempo, se usa la funcion `yield    ()`.
-Luego para saber si un proceso hizo un cambio de contexto sin consumir el quantum, usamos una aritmetica con los tiks, que cuentan la cantida de interrupciones. En la funcion `sheduler``, cuando iniciamos el proceso almacenamos el valor de los ticks y finalmente despues de que se ejecuto comparamos con los tiks actuales.
+Para hacer esto usamos una aritmetica con los ticks, que cuentan la cantida de interrupciones. En la funcion `sheduler`, cuando iniciamos el proceso almacenamos el valor de los ticks (en `ticks_first_run`) y finalmente despues de que se ejecuto comparamos con los tiks actuales.
 Si son iguales es porque no hubo interupciones de tiempo, por lo tanto cedio el cpu y le subimos la prioridad.
 Si son diferentes es porque hubieron interrupciones de tiempo, por lo tanto consumio todo un quantum y le bajamos la prioridad. 
-    
-```  
-/* Manejo de prioridades */
-if (ticks == ticks_first_run)
-p->priority = p->priority != 0 ? p->priority - 1 : p->priority; // Que tenga mayor prioridad porque no hubo interrupciones.
-else
-p->priority = p->priority < NPRIO - 1 ? p->priority + 1 : p->priority; // Que tenga menor prioridad porque supero el quantum.
+``` c
+  /* Manejo de prioridades */
+  if (ticks == ticks_first_run)
+  p->priority = p->priority != 0 ? p->priority - 1 : p->priority; // Que tenga mayor prioridad porque no hubo interrupciones.
+  else
+  p->priority = p->priority < NPRIO - 1 ? p->priority + 1 : p->priority; // Que tenga menor prioridad porque supero el quantum.
 ```
+ANDA SI TENEMOS VARIAS CPUS ❓❓❓❓ (revisar).
+
+Otra opción la encontramos al buscar en `kernel/trap.c` para encontrar como detectar si fue una interrupcion de tiempo o otra cosa.
+Logramos ver que en las funciones `usertrap` y `kerneltrap` del archivo `kernel/trap.c`, revisan que hacer si fue un interrupcion de tiempo o de una system call desde espacio de usuario.  Casualmente cuando hay una interupcion de tiempo, se usa la funcion `yield()`.
+Luego para saber si un proceso hizo un cambio de contexto sin consumir el quantum, es lo echo anteriorimente.
 
 ## Cuarta Parte: 
