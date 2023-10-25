@@ -20,7 +20,7 @@ Estudiando el planificador de xv6-riscv y respondiendo preguntas.
 #### Preguntas
 1. ✅ ¿Qué política de planificación utiliza xv6-riscv para elegir el próximo proceso a ejecutarse?
 2. ✅ ¿Cuánto dura un quantum en xv6-riscv?
-3. ❓ ¿Cuánto dura un cambio de contexto en xv6-riscv? (TERMINAR)
+3. ✅ ¿Cuánto dura un cambio de contexto en xv6-riscv? (TERMINAR)
 4. ✅ ¿El cambio de contexto consume tiempo de un quantum? 
 5. ✅ ¿Hay alguna forma de que a un proceso se le asigne menos tiempo?
 6. ✅ ¿Cúales son los estados en los que un proceso pueden permanecer en xv6-riscv y que los hace cambiar de estado?
@@ -33,11 +33,11 @@ Las interrupciones de tiempo se hacer siempre cada un quantum, sin importar nada
 2. Un quantum en xv6-riscv dura 1/10 de segundo. <br/>
    Nos dimos cuenta por la función `void timerinit()` implementada en `kernel/start.c`.
 3. Podemos encontrar el tiempo del cambio de contexto sabiendo que el quantum contiene el cambio de contexto. Para ello, vamos reduciendo el quantum hasta que el sistema operativo no pueda ejecutarse: idem, hasta que no pueda ejecutar siquiera una instrucción.<br>
-❓Finalmente, luego de ir cambiando el quantum, obtuvimos que a partir de un quantum de 2000, empieza a fallar algunas veces. Con un quantum menor que 350, deja de funcionar todo. Por lo tanto, el cambio de contexto es aproximadamente de 350.❓
-4. Las interrupciones por tiempo se ejecutan siempre en el mismo intervalo y nunca se detiene. Como nadie interfiere, el cambio de contexto está contenido en el quantum. 
-5. Si hay una manera, por ejemplo: si tenemos un quantum de 10 segundos y hay un proceso que se ejecuta por 5 segundos y hay una interrupción, comienza a ejecutarse otro porceso y se le asigna el tiempo que queda al quantum por terminar. 
+Finalmente, luego de ir cambiando el quantum, obtuvimos que a partir de un quantum de 2000, empieza a fallar algunas veces. Con un quantum menor que 350, deja de funcionar todo. Por lo tanto, el cambio de contexto es aproximadamente de 350.
+1. Las interrupciones por tiempo se ejecutan siempre en el mismo intervalo y nunca se detiene. Como nadie interfiere, el cambio de contexto está contenido en el quantum. 
+2. Si hay una manera, por ejemplo: si tenemos un quantum de 10 segundos y hay un proceso que se ejecuta por 5 segundos y hay una interrupción, comienza a ejecutarse otro porceso y se le asigna el tiempo que queda al quantum por terminar. 
 
-6. Encontramos en `kernel/proc.h` lo siguiente: <br/>
+3. Encontramos en `kernel/proc.h` lo siguiente: <br/>
    ```c
    enum procstate { UNUSED, USED, SLEEPING, RUNNABLE, RUNNING, ZOMBIE };
    ```
@@ -243,6 +243,23 @@ Aclaración, para hacer este test se modificó la variable `interval` en `kernel
   **Output del escenario**: `mediciones/q-10_medicion_5.txt` .
 
 
+
+
+
+
+
+
+
+
+
+(pegar lo de la rama MLFQ)
+
+
+
+
+
+
+
 ## Tercera Parte:
 **Rastreando la prioridad de los procesos**
 
@@ -272,7 +289,6 @@ Si son diferentes, es porque hubo interrupciones de tiempo, por lo tanto, consum
   else
   p->priority = p->priority < NPRIO - 1 ? p->priority + 1 : p->priority; // Que tenga menor prioridad porque supero el quantum.
 ```
-ANDA SI TENEMOS VARIAS CPUS ❓❓❓❓ (revisar).
 
 Otra opción la encontramos al buscar en `kernel/trap.c` para encontrar cómo detectar si fue una interrupción de tiempo o otra cosa.
 Logramos ver que en las funciones `usertrap` y `kerneltrap` del archivo `kernel/trap.c`, revisan qué hacer si fue una interrupción de tiempo o de una system call desde espacio de usuario. Casualmente, cuando hay una interrupción de tiempo, se usa la función `yield()`.
