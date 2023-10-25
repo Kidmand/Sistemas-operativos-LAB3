@@ -243,55 +243,294 @@ Aclaración, para hacer este test se modificó la variable `interval` en `kernel
   **Output del escenario**: `mediciones/q-10_medicion_5.txt` .
 
 
-
-
-
-
-
-
-
-
-
-(pegar lo de la rama MLFQ)
-
-
-
-
-
-
-
 ## Tercera Parte:
 **Rastreando la prioridad de los procesos**
 
-### Implementando la regla 3: 
-**MLFQ regla 3:**
-Cuando un proceso se inicia, su prioridad será mínima.
-Esto se puede hacer en `kernel/proc.c` en la función `allocproc()` luego de que el proceso se asigne en la tabla de procesos.
-```
+### Aclaracion de nuestra implementación:
+Consideramos a `0` como la mayor prioridad (en este inician todos los procesos) y los numeros mayores a `0` como menor prioridad (ejemplo: 2 tiene menor prioridad que 1).
+
+### ✅Implementando la regla 3: 
+**MLFQ regla 3:** Cuando un proceso se inicia, su prioridad será minima. <br/>
+Esto se puede hacer en `kernel/proc.c` en la funcion `allocproc()` luego de que el proceso se asigne en la tabla de procesos.
+``` c
 found:
 p->pid = allocpid();
 p->state = USED;
 p->priority = 0;
 ```
+Luego en `freeproc()` tambien se agrego que la prioridad cambie a 0, para que luego inicie en 0.
 
-### Implementando la regla 4:
+### ✅Implementando la regla 4:
 **MLFQ regla 4:**
 1) Ascender de prioridad cada vez que el proceso pasa todo un quantum realizando cómputo. 
 2) Descender de prioridad cada vez que el proceso se bloquea antes de terminar su quantum.
 
-Para hacer esto, usamos una aritmética con los ticks, que cuentan la cantidad de interrupciones. En la función `scheduler`, cuando iniciamos el proceso, almacenamos el valor de los ticks (en `ticks_first_run`) y finalmente, después de que se ejecutó, comparamos con los ticks actuales.
-Si son iguales, es porque no hubo interrupciones de tiempo, por lo tanto, cedió el CPU y le subimos la prioridad.
-Si son diferentes, es porque hubo interrupciones de tiempo, por lo tanto, consumió todo un quantum y le bajamos la prioridad. 
+Para hacer esto usamos una aritmetica con los ticks, que cuentan la cantida de interrupciones. En la funcion `sheduler`, cuando iniciamos el proceso almacenamos el valor de los ticks (en `ticks_first_run`) y finalmente despues de que se ejecuto comparamos con los tiks actuales.
+Si son iguales es porque no hubo interupciones de tiempo, por lo tanto cedio el cpu y le subimos la prioridad.
+Si son diferentes es porque hubieron interrupciones de tiempo, por lo tanto consumio todo un quantum y le bajamos la prioridad. 
 ``` c
   /* Manejo de prioridades */
   if (ticks == ticks_first_run)
-  p->priority = p->priority != 0 ? p->priority - 1 : p->priority; // Que tenga mayor prioridad porque no hubo interrupciones.
+    p->priority = p->priority != 0 ? p->priority - 1 : p->priority; // Que tenga mayor prioridad porque no hubo interrupciones.
   else
-  p->priority = p->priority < NPRIO - 1 ? p->priority + 1 : p->priority; // Que tenga menor prioridad porque supero el quantum.
+    p->priority = p->priority < NPRIO - 1 ? p->priority + 1 : p->priority; // Que tenga menor prioridad porque supero el quantum.
 ```
 
-Otra opción la encontramos al buscar en `kernel/trap.c` para encontrar cómo detectar si fue una interrupción de tiempo o otra cosa.
-Logramos ver que en las funciones `usertrap` y `kerneltrap` del archivo `kernel/trap.c`, revisan qué hacer si fue una interrupción de tiempo o de una system call desde espacio de usuario. Casualmente, cuando hay una interrupción de tiempo, se usa la función `yield()`.
-Luego, para saber si un proceso hizo un cambio de contexto sin consumir el quantum, es lo hecho anteriormente.
+Otra opción para la implementación la encontramos al buscar en `kernel/trap.c` para encontrar como detectar si fue una interrupcion de tiempo o otra cosa.
+Logramos ver que en las funciones `usertrap` y `kerneltrap` del archivo `kernel/trap.c`, revisan que hacer si fue un interrupcion de tiempo o de una system call desde espacio de usuario.  Casualmente cuando hay una interupcion de tiempo, se usa la funcion `yield()`, aca podriamos implementar la reducion de la prioridad.
+Luego para saber si un proceso hizo un cambio de contexto sin consumir el quantum, es lo hecho anteriorimente.
+Finalmente decidimos no usar esta porque nos parecia mas clara la mencionada al principio.
 
 ## Cuarta Parte: 
+**Implementamos la planificación para que nuestro xv6-riscv utilice MLFQ.**
+
+### ✅Implementamos la regla 1: 
+**MLFQ regla 1:** Si el proceso A tiene mayor prioridad que el proceso B, corre A. (y no B) <br/>
+Para esto modificamos en `kernel/proc.c` la funcion `scheduler` agregando un ciclo que recorre desde los procesos de prioridad mas baja a los procesos de prioridada mas alta (Como primero se recorren los de prioridad mas baja, seran los primeros en consideracion para ser seleccionados aplicando la regla 1) una y otra vez hasta que pueda seleccionar a traves de la funcion `select_p` un proceso a ejecutar. <br/>
+La funcion `select_p` por ahora basta decir que se encarga de seleccionar un proceso con la prioridad especificada listo para correr (RUNNABLE).
+``` c
+void scheduler(void)
+{
+  struct proc *p;
+  struct cpu *c = mycpu();
+  int seguir;
+
+  c->proc = 0;
+  for (;;)
+  {
+    // Avoid deadlock by ensuring that devices can interrupt.
+    intr_on();
+    int priority;
+    seguir = 1; // TRUE
+    for (priority = 0; priority < NPRIO && seguir; priority++)
+    {
+      p = select_p(priority); // Selecionamos el proceso con la prioridad especificada.
+      if (p != 0) // Si se devolvio un proceso lo corremos.
+      {
+        execute(c, p); // Ejecutamos el proceso.
+        seguir = 0;    // FALSE, termina el while y vuelve mirar los procesos con mayor prioridad.
+        release(&p->lock);
+      }
+    }
+  }
+}
+```
+
+### ✅ Implementamos la regla 2: 
+**MLFQ regla 2:** Si dos procesos A y B tienen la misma prioridad, corre el que menos veces fue elegido por el planificador. <br/>
+
+De esta regla se encarga la funcion antes mencionada `select_p` que no solo busca un proceso de la prioridad pedida listo para correr, si no que tambien, busca el proceso que menos veces haya sido seleccionado por el planificador (aplicando la regla 2).
+``` c
+struct proc *select_p(int priority)
+{
+  struct proc *p, *res_p = 0;
+  int min_cantselect = 2147483647; // Inicializamos la variable en el INT MAX
+
+  for (p = proc; p < &proc[NPROC]; p++) // Recorre todos los procesos de la tabla de procesos proc.
+  {
+    acquire(&p->lock);
+    if (p->state == RUNNABLE && p->priority == priority && p->cantselect < min_cantselect)
+    {
+      if (res_p != 0)
+        release(&res_p->lock);
+      res_p = p;
+      min_cantselect = p->cantselect;
+    }
+    else
+    {
+      release(&p->lock);
+    }
+  }
+  return res_p;
+}
+```
+Fue importante en esta función lograr manejar correctamente los locks. Esto lo conseguimos haciendo que la función `select_p()` siempre consulte de forma atomica los procesos, pero que ademas al unico proceso que no se le hace `release` es al que fue selecionado. Por esta razon es importante saber que cuando se sale de esta función ya fue llamada la función `acquire` con el lock del procesos selecionado y en algun momento se va a tener que llamar a `release` de este mismo lock.
+
+### Repetimos las mediciones de la segunda parte para ver las propiedades del nuevo planificador. <br/>
+
+#### 1) Quantum normal:
+Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las siguientes condiciones:
+
+| Hardware                              | Quantum | Politica Scheduler | Cantidad de CPU | Software   |
+| ------------------------------------- | ------- | ------------------ | --------------- | ---------- |
+| Intel(R) Core(TM) i7-10870H  2.21 GHz | 1000000 | MLFQ               | 1               | Qemu 6.2.0 |
+
+##### ✅ **Escenario 1:** <br/>
+  El comando ejecutado fue `iobench` y se recopilo la siguiente información:
+
+| Parámetro                       |  Valor  |
+| :------------------------------ | :-----: |
+| Promedio de OPW100T (iobench-3) | 5401.68 |
+| Promedio de OPR100T (iobench-3) | 5401.68 |
+| Cant. select        (iobench-3) | 338378  |
+| Last exect          (iobench-3) |  2009   |
+
+  **Conclusión:** <br/>
+  El proceso iobench esta ejecutando practicamente solo en el SO, por lo tanto puede hacer muchas operaciones de R/W pero no tantas como con el viejo planificador. Esto sucede debido a que el codigo que requiere el planificador MLFQ es de mayor extencion y complejidad. Luego las demas conclusiones son practicamente identicas, no hay mas cambios. <br/>
+  **Output del escenario**: `mediciones/mlfq_medicion_1.txt` .
+
+##### ✅ **Escenario 2:**<br/>
+  El comando ejecutado fue `cpubench` y se recopilo la siguiente información:
+
+| Parámetro                       |  Valor  |
+| :------------------------------ | :-----: |
+| Promedio MFLOP100T (cpubench-3) | 813.312 |
+| Cant. select       (cpubench-3) |  2109   |
+| Last exect         (cpubench-3) |  2014   |
+
+  **Conclusión:** <br/>
+  El proceso cpubench esta ejecutando practicamente solo en el SO, al ser cpu-bound siempre consume el quantum y baja su prioridad, pero eso no le afecta ya que es el unico proceso. El unico cambio que hay es la leve disminusion de la cantidad de operaciones con respecto al viejo planificador, esto ocurre nuevamente por el mayor peso de la nueva estructura de datos.  <br/>
+  **Output del escenario**: `mediciones/mlfq_medicion_2.txt` .
+
+##### ✅**Escenario 3:** <br/> 
+  El comando ejecutado fue `iobench & ; cpubench &` y se recopilo la siguiente información:
+
+| Parámetro                       |  Valor  |
+| :------------------------------ | :-----: |
+| Promedio de OPW100T (iobench-5) |  35.5   |
+| Promedio de OPR100T (iobench-5) |  35.5   |
+| Promedio MFLOP100T (cpubench-6) | 831.125 |
+| Cant. select        (iobench-5) |  2236   |
+| Cant. select       (cpubench-6) |  2112   |
+| Last exect          (iobench-5) |  2018   |
+| Last exect         (cpubench-6) |  2017   |
+
+  **Conclusión:** <br/>
+  Vemos conclusiones iguales al ejercicio dos salvo por: <br/>
+  En general hubo una leve disminucion de las operaciones, esto sucede nuevamente por el mayor computo del planificador MLFQ en comparacion al RR. <br/>
+  Luego, gracias al planificador, el `iobench` fue seleccionado un par mas de veces. Aun así, no fueron demasiadas ya que aunque el `iobench` tiene mas prioridad solo hay dos procesos y al ceder el cpu, generalmente no estara listo para correr inmediatamente por lo que se elegira el `cpubench`. <br/>
+  **Output del escenario**: `mediciones/mlfq_medicion_3.txt` .
+
+##### ✅**Escenario 4:** <br/>
+  El comando ejecutado fue `cpubench & ; cpubench &` y se recopilo la siguiente información:
+
+| Parámetro                       |  Valor  |
+| :------------------------------ | :-----: |
+| Promedio MFLOP100T (cpubench-5) | 1027.88 |
+| Promedio MFLOP100T (cpubench-6) | 1029.59 |
+| Cant. select       (cpubench-5) |  1058   |
+| Cant. select       (cpubench-6) |  1055   |
+| Last exect         (cpubench-5) |  2017   |
+| Last exect         (cpubench-6) |  2013   |
+
+  **Conclusión:** <br/>
+  Misma conclusion que en el ejercicio 2. Esto sucede porque al ser solo dos procesos cpubench hay menos cambios de contexto, por esta razon no se nota mucho cambio en los datos y ademas, al tener la misma prioridad el planificador funciona como un RR. <br/>
+  **Output del escenario**: `mediciones/mlfq_medicion_4.txt` .
+
+##### ✅**Escenario 5:** <br/>  
+  El comando ejecutado fue `cpubench & ; cpubench & ; iobench &` y se recopilo la siguiente información:
+
+| Parámetro                       |  Valor  |
+| :------------------------------ | :-----: |
+| Promedio MFLOP100T (cpubench-5) | 995.353 |
+| Promedio MFLOP100T (cpubench-7) | 1000.65 |
+| Promedio de OPW100T (iobench-8) |  35.5   |
+| Promedio de OPR100T (iobench-8) |  35.5   |
+| Cant. select       (cpubench-5) |  1060   |
+| Cant. select       (cpubench-7) |  1057   |
+| Cant. select        (iobench-8) |  2237   |
+| Last exect         (cpubench-5) |  2019   |
+| Last exect         (cpubench-7) |  2017   |
+| Last exect          (iobench-8) |  2020   |
+
+  **Conclusión:** <br/>
+  En este escenario se puede apreciar un aumento en la cantidad de veces que se selecciono el `iobench`, repercutiendo a su vez en el aumento de las operaciones de R/W del mismo. Esto sucede gracias al planificador (por la regla 1 siempre elige el que tiene la mayor prioridad) y a que hay mas procesos (a diferencia del escenario 3). <br/> 
+  Al haber mas de dos procesos, ahora si se puede planificar mas pudiendo elegir al `iobench` siempre luego de que termine el `cpubench` duplicando las veces en las que es elegido. 
+
+  **Output del escenario**: `mediciones/mlfq_medicion_5.txt` .
+
+#### 2) Quantum disminuido:
+
+Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las siguientes condiciones:
+
+| Hardware                              | Quantum | Politica Scheduler | Cantidad de CPU | Software   |
+| ------------------------------------- | ------- | ------------------ | --------------- | ---------- |
+| Intel(R) Core(TM) i7-10870H  2.21 GHz | 1000000 | MLFQ               | 1               | Qemu 6.2.0 |
+
+##### ✅**Escenario 1:** <br/>
+  El comando ejecutado fue `iobench` y se recopilo la siguiente información:
+
+| Parámetro                       |  Valor  |
+| :------------------------------ | :-----: |
+| Promedio de OPW100T (iobench-3) | 5451.05 |
+| Promedio de OPR100T (iobench-3) | 5451.05 |
+| Cant. select        (iobench-3) | 349830  |
+| Last exect          (iobench-3) |  2008   |
+
+  **Conclusión:** <br/>
+  Al ser `iobench` nunca termina el quantum y su prioridad se mantiene alta por lo que tenemos el mismo resultado que al ejecutar el escenario con RR, unicamente se dismunyen un poco las operaciones de R/W por el computo de la ejecución del planificador MLFQ.  <br/>
+  **Output del escenario**: `mediciones/mlfq_q-10_medicion_1.txt` .
+
+##### ✅**Escenario 2:**<br/>
+  El comando ejecutado fue `cpubench` y se recopilo la siguiente información:
+
+| Parámetro                       | Valor  |
+| :------------------------------ | :----: |
+| Promedio MFLOP100T (cpubench-3) | 846.25 |
+| Cant. select       (cpubench-3) | 21193  |
+| Last exect         (cpubench-3) |  2029  |
+
+  **Conclusión:** <br/>
+  Al ser `cpubench` su prioridad se disminuye pero al estar solo tenemos el mismo resultado que al ejecutarlo en el escenario con RR, unicamente se reducen un poco las MFLOP100T por el computo de la ejecución del planificador MLFQ. <br/>
+  **Output del escenario**: `mediciones/mlfq_q-10_medicion_2.txt` .
+
+##### ✅**Escenario 3:** <br/> 
+  El comando ejecutado fue `iobench & ; cpubench &` y se recopilo la siguiente información:
+
+| Parámetro                       |  Valor  |
+| :------------------------------ | :-----: |
+| Promedio de OPW100T (iobench-5) | 337.529 |
+| Promedio de OPR100T (iobench-5) | 337.529 |
+| Promedio MFLOP100T (cpubench-6) | 794.474 |
+| Cant. select        (iobench-5) |  21038  |
+| Cant. select       (cpubench-6) |  20958  |
+| Last exect          (iobench-5) |  2009   |
+| Last exect         (cpubench-6) |  2009   |
+
+
+  **Conclusión:** <br/>
+  Podemos ver que no hay cambios respecto al RR y eso sucede por la misma razon que se dice en el escenario 3 sin el quantum reducido, aunque el `iobench` tiene mas prioridad solo hay dos procesos y al ceder el cpu, generalmente no estara listo para correr inmediatamente por lo que se elegira el `cpubench` y asi sucesivamente. 
+  Por otra parte vemos que aumento la cantidad de R/W, ya que el proceso `cpubench` ejecuta menos tiempo e inmediatamente ejecuta el `iobench`. A su vez el `cpubench` se ve un poco reducido porque se ejecutan mas `iobench`. Un comportamineto similar al caso de RR con el quantum reducido. <br/>
+  
+  **Output del escenario**: `mediciones/mlfq_q-10_medicion_3.txt` .
+
+##### ✅**Escenario 4:** <br/>
+  El comando ejecutado fue `cpubench & ; cpubench &` y se recopilo la siguiente información:
+
+| Parámetro                       |  Valor  |
+| :------------------------------ | :-----: |
+| Promedio MFLOP100T (cpubench-5) | 1003.28 |
+| Promedio MFLOP100T (cpubench-6) | 1007.5  |
+| Cant. select       (cpubench-5) |  10499  |
+| Cant. select       (cpubench-6) |  10575  |
+| Last exect         (cpubench-5) |  2011   |
+| Last exect         (cpubench-6) |  2018   |
+
+  **Conclusión:** <br/>
+  Respecto a RR, se comporta de la misma forma poque tenemos dos procesos `cpubench` que se mantienen en la misma prioridad. Por otra parte al reducir quantum genera que se hagan menos operaciones MFLOP100T, incluso hay una diferencia con RR por el computo de la ejecución del planificador MLFQ. <br/>
+
+  **Output del escenario**: `mediciones/mlfq_q-10_medicion_4.txt` .
+
+##### ✅**Escenario 5:** <br/>  
+  El comando ejecutado fue `cpubench & ; cpubench & ; iobench &` y se recopilo la siguiente información:
+
+| Parámetro                       |  Valor  |
+| :------------------------------ | :-----: |
+| Promedio MFLOP100T (cpubench-5) | 871.421 |
+| Promedio MFLOP100T (cpubench-7) |   824   |
+| Promedio de OPW100T (iobench-8) | 337.529 |
+| Promedio de OPR100T (iobench-8) | 337.529 |
+| Cant. select       (cpubench-5) |  10492  |
+| Cant. select       (cpubench-7) |  10564  |
+| Cant. select        (iobench-8) |  21034  |
+| Last exect         (cpubench-5) |  2011   |
+| Last exect         (cpubench-7) |  2018   |
+| Last exect          (iobench-8) |  2014   |
+
+  **Conclusión:** <br/>
+  Podemos ver un comportamiento similar al escenario ejecutado con el quantum original, los `iobench` tiene mayor prioridad y ejecutan mas veces por el planificador MLFQ. La principal difrencia se ve en la reduccion de MFLOP100T en los procesos `cpubench`. Esto sucede porque al tener el quantum mas chico ejecutan durente menos tiempo y ejecutan mas veces el `iobench`, lo cual es otra razon por la que aumentan las R/W de estos procesos. <br/>
+
+  **Output del escenario**: `mediciones/mlfq_q-10_medicion_5.txt` .
+
+
+### Análisis: ¿Se puede producir starvation en el nuevo planificador?
