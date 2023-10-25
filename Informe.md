@@ -534,3 +534,32 @@ Todos los esenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en las
 
 
 ### Análisis: ¿Se puede producir starvation en el nuevo planificador?
+La *starvation* o *"inanición"* es un problema de planificación de procesos en el que un proceso no recibe tiempo de CPU durante un período prolongado de tiempo. Esto ocurre cuando el planificador de procesos selecciona siempre otros procesos para ejecutarse, dejando al proceso hambriento sin tiempo de CPU.
+
+En esta implementacion de reglas se encuentra el problema de *starvation*. Esto es debido a que siempre que existe un proceso listo para correr de mayor prioridad, no se ejecutara ningun proceso listo para correr de menor prioridad por la *regla 1*.<br/>
+Por lo tanto, siempre que haya procesos que se mantengan en la prioridad mas alta (como por ejemplo los io-bound) listos para correr, los procesos con prioridad mas baja (como por ejemplo los cpu-bound) se moriran de hambre. Habran procesos que nunca accederan al CPU luego de consumir por primera vez su quantum subiendo de prioridad por la *regla 4.1*.
+
+Para demostrarlo probamos ejecutar el escenario `cpubench & ;  iobench & ;  iobench & ; iobench &`, en teoria el proceso `cpubench` debria morirse de hambre porque se encuentran ejecutando los procesos `iobench`. Lo ejeuctamos y se recopilo la siguiente información:
+
+| Parámetro                        |  Valor  |
+| :------------------------------- | :-----: |
+| Promedio de OPW100T (iobench-9)  |  54,8   |
+| Promedio de OPR100T (iobench-9)  |  54,8   |
+| Promedio de OPW100T (iobench-5)  |    0    |
+| Promedio de OPR100T (iobench-5)  |    0    |
+| Promedio de OPW100T (iobench-7)  |    0    |
+| Promedio de OPR100T (iobench-7)  |    0    |
+| Promedio MFLOP100T (cpubench-10) | 848,118 |
+| Cant. select        (iobench-9)  |  2210   |
+| Cant. select        (iobench-5)  |   396   |
+| Cant. select        (iobench-7)  |   427   |
+| Cant. select       (cpubench-10) |  2164   |
+| Last exect          (iobench-9)  |  2032   |
+| Last exect          (iobench-5)  |  2033   |
+| Last exect          (iobench-7)  |  2033   |
+| Last exect         (cpubench-10) |  2032   |
+
+  **Conclusión:** <br/>
+  En la practica podemos ver que no se cumple nuestra hipotesis teorica. Por ejemplo, el `cpubench` no es el ultimo proceso en terminar y esto no deberia ser asi. A su vez, solo uno de los tres iobench logra hacer operaciones de R/W, este suceso es inesperado ya que dos cambian su estado a sleep permanentemente y quizas por esto no se cumple la hipotesis propuesta. 
+
+  **Output del escenario**: `mediciones/mlfq_medicion_6.txt` .
