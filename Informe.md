@@ -450,7 +450,7 @@ Todos los escenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en la
 | Last exect          (iobench-3) |  2008   |
 
   **Conclusión:** <br/>
-  Al ser `iobench` nunca termina el quantum y su prioridad se mantiene alta por lo que tenemos el mismo resultado que al ejecutar el escenario con RR, unicamente se dismunyen un poco las operaciones de R/W por el cómputo de la ejecución del planificador MLFQ.  <br/>
+  Al ser `iobench` nunca termina el quantum y su prioridad se mantiene alta por lo que tenemos el mismo resultado que al ejecutar el escenario con RR, unicamente se disminuyen un poco las operaciones de R/W por el cómputo de la ejecución del planificador MLFQ.  <br/>
   **Output del escenario**: `mediciones/mlfq_q-10_medicion_1.txt` .
 
 ##### ✅**Escenario 2:**<br/>
@@ -463,7 +463,7 @@ Todos los escenarios fueron ejecutados con el comando `make CPUS=1 qemu` y en la
 | Last exect         (cpubench-3) |  2029  |
 
   **Conclusión:** <br/>
-  Al ser `cpubench` su prioridad se disminuye pero al estar solo tenemos el mismo resultado que al ejecutarlo en el escenario con RR, únicamente se reducen un poco las MFLOP100T por el cómputo de la ejecución del planificador MLFQ. <br/>
+  Al ser `cpubench` su prioridad se disminuye pero al estar solo,tenemos el mismo resultado que al ejecutarlo en el escenario con RR, únicamente se reducen un poco las MFLOP100T por el cómputo de la ejecución del planificador MLFQ. <br/>
   **Output del escenario**: `mediciones/mlfq_q-10_medicion_2.txt` .
 
 ##### ✅**Escenario 3:** <br/> 
@@ -555,3 +555,6 @@ Para demostrarlo probamos ejecutar el escenario `cpubench & ;  iobench & ;  iobe
   En la practica podemos ver que no se cumple nuestra hipótesis teorica. Por ejemplo, el `cpubench` no es el ultimo proceso en terminar y esto no deberia ser asi. A su vez, solo uno de los tres iobench logra hacer operaciones de R/W, este suceso es inesperado ya que dos cambian su estado a sleep permanentemente y quizas por esto no se cumple la hipótesis propuesta. 
 
   **Output del escenario**: `mediciones/mlfq_medicion_6.txt` .
+
+  Representamos estos datos en gráficos para su mayor entendimiento y representación.
+  https://infogram.com/step-by-step-charts-1h984woelqvvz6p?live
